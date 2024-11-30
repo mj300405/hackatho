@@ -3,26 +3,38 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 from core.decorators import profile_completed_required
 from .services import HobbyRecommendationService
 from hobbies.models import Hobby, Category, UserHobby
 from .serializers import HobbyRecommendationSerializer
+from core.models import User
 
 class InitialHobbyRecommendationView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = HobbyRecommendationSerializer
     
     @profile_completed_required()
-    def get(self, request):
+    def get(self, request, user_id):
+        # Get the target user
+        target_user = get_object_or_404(User, id=user_id)
+        
+        # Check if the requesting user has permission to get recommendations for the target user
+        if request.user.id != user_id:
+            return Response({
+                "error": "Permission denied",
+                "message": "You can only get recommendations for your own account."
+            }, status=status.HTTP_403_FORBIDDEN)
+        
         # Check if user already has recommendations
-        if request.user.user_hobbies.exists():
+        if target_user.user_hobbies.exists():
             return Response({
                 "error": "Initial recommendations already generated",
                 "message": "You already have hobby recommendations. Use the hobby roulette for more suggestions."
             }, status=status.HTTP_400_BAD_REQUEST)
         
         service = HobbyRecommendationService()
-        recommendations = service.get_recommendations(request.user)
+        recommendations = service.get_recommendations(target_user)
         
         if not recommendations:
             return Response({
@@ -35,7 +47,6 @@ class InitialHobbyRecommendationView(APIView):
                 created_hobbies = []
                 
                 for recommendation in recommendations:
-                    # Check if hobby already exists
                     hobby, created = Hobby.objects.get_or_create(
                         name__iexact=recommendation['name'],
                         defaults={
@@ -63,7 +74,7 @@ class InitialHobbyRecommendationView(APIView):
                 # Create UserHobby entries
                 for hobby_data in created_hobbies:
                     UserHobby.objects.create(
-                        user=request.user,
+                        user=target_user,  # Use target_user instead of request.user
                         hobby=hobby_data['hobby'],
                         status='favorite' if hobby_data['match_level'] == 'BEST' else 'active'
                     )
