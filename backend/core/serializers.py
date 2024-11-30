@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from rest_framework import serializers
+from .models import Hobby, Category
 
 User = get_user_model()
 
@@ -41,3 +43,28 @@ class UserSerializer(serializers.ModelSerializer):
                  'available_time', 'budget_preference', 'profile_completed', 
                  'coins', 'exp')
         read_only_fields = ('coins', 'exp')
+
+class HobbyRecommendationSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(write_only=True)
+    match_level = serializers.CharField(write_only=True)
+    
+    class Meta:
+        model = Hobby
+        fields = (
+            'id',
+            'name', 
+            'description', 
+            'difficulty_level', 
+            'time_commitment',
+            'price_range', 
+            'required_equipment', 
+            'minimum_age', 
+            'category_name',
+            'match_level'
+        )
+
+    def create(self, validated_data):
+        category_name = validated_data.pop('category_name')
+        validated_data.pop('match_level', None)  # Remove match_level as it's not part of the Hobby model
+        category, _ = Category.objects.get_or_create(name=category_name)
+        return Hobby.objects.create(category=category, **validated_data)
