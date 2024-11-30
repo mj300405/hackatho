@@ -1,4 +1,4 @@
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { Text, View, TextInput, Button } from "react-native";
 
 export default function Login() {
@@ -26,6 +26,9 @@ export default function Login() {
           router.push("/(tabs)");
         }}
       />
+      <Link href="/tinder" className="text-white">
+        Tinder
+      </Link>
     </View>
   );
 }
