@@ -3,61 +3,105 @@ import { View, Text, Button } from "react-native";
 import { useState } from "react";
 import { Picker } from "@react-native-picker/picker";
 import InputLabel from "@/components/forms/InputLabel";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 export default function Register() {
+  // Use state to store the values of the input fields
   const [username, setUserName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [repeatPassword, setRepeatPassword] = useState<string>("");
   const [age, setAge] = useState<string>("");
-  const [location, setLocation] = useState<string>(""); 
-  const [personality, setPersonality] = useState<string>("INTJ"); 
-  const [availableTime, setAvailableTime] = useState<string>(""); 
-  const [budget, setBudget] = useState<string>("LOW"); 
+  const [location, setLocation] = useState<string>("");
+  const [personality, setPersonality] = useState<string>("INTJ");
+  const [availableTime, setAvailableTime] = useState<string>("");
+  const [budget, setBudget] = useState<string>("LOW");
 
-	const handleRegister = async () => {
-	console.log("Registering user");
-		if (password !== repeatPassword) {
-			console.log("Passwords do not match");
-			// TODO: show error
-			return;
-		}
+  const [error, setError] = useState<string>("");
 
-		const requestBody = {
-			username,
-			email,
-			password,
-			age,
-			location,
-			personality_type: personality,
-			available_time: availableTime,
-			budget_preference: budget
-		};
+  const handleRegister = () => {
+    console.log("Registering user");
+    if (password !== repeatPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
 
-		console.log(requestBody);
-		const response = await axios.post("http://localhost:8000/api/register", requestBody);
-		console.log(response);
-	};
+    const requestBody = {
+      username,
+      email,
+      password,
+      age,
+      location,
+      personality_type: personality,
+      available_time: availableTime,
+      budget_preference: budget,
+    };
+
+    console.log(requestBody);
+
+    axios
+      .post(
+        `http://${process.env.EXPO_PUBLIC_SERVER_URL}/register/`,
+        requestBody,
+      )
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        // The response has validation errors.One key represents one form field. Each field has an array of errors.
+        const keys = [
+          "username",
+          "email",
+          "password",
+          "age",
+          "location",
+          "personality_type",
+          "available_time",
+          "budget_preferences",
+        ];
+
+        if (error instanceof AxiosError) {
+          console.error(error.response?.data);
+          keys.forEach((key) => {
+            if (error.response?.data[key]) {
+              setError(`${key}: ${error.response?.data[key][0]}`);
+            }
+          });
+        }
+      });
+  };
 
   return (
     <View className="bg-white px-2">
-			<Text className="text-center">Register</Text>
-      <Input label="Username" onChangeText={setUserName} value={username} placeholder="Username"/>
-      <Input label="Email" onChangeText={setEmail} value={email} placeholder="Email"/>
+      <Text className="text-center">Register</Text>
+      {error !== "" && (
+        <Text className="text-center text-red-400">{error}</Text>
+      )}
+      <Input
+        label="Username"
+        onChangeText={setUserName}
+        value={username}
+        placeholder="Username"
+      />
+      <Input
+        label="Email"
+        onChangeText={setEmail}
+        value={email}
+        placeholder="Email"
+      />
       <Input
         label="Password"
         onChangeText={setPassword}
         value={password}
         secureTextEntry={true}
-				placeholder="Password"
+        placeholder="Password"
       />
-			<Input
+      <Input
         label="Repeat Password"
         onChangeText={setRepeatPassword}
         value={repeatPassword}
         secureTextEntry={true}
-				placeholder="Password"
+        placeholder="Password"
       />
       <Input
         label="Age"
@@ -97,7 +141,7 @@ export default function Register() {
         <Picker.Item label="MEDIUM" value="MEDIUM" />
         <Picker.Item label="HIGH" value="HIGH" />
       </Picker>
-			 <Button title="Register" onPress={handleRegister}/>
+      <Button title="Register" onPress={handleRegister} />
     </View>
   );
 }
