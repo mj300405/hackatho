@@ -21,7 +21,21 @@ const ProfileScreen = () => {
   //Colors[colorScheme ?? "light"].tint;
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-white pt-12">
+      <View className="px-8">
+      {/* Profile Header */}
+      <View className="flex-row items-center mb-4">
+        {/* Black Profile Picture Placeholder */}
+        <View className="w-16 h-16 bg-black rounded-2xl" />
+        
+        {/* User Info */}
+        <View className="ml-4">
+          <Text className="text-xl font-bold">Test Useer </Text>
+          <Text className="text-gray-500">test.user@gmail.com</Text>
+        </View>
+      </View>
+
+
       {/* Profile Section */}
        {/* <View className="bg-black h-1/2 p-6"> */}
         {/* <View className="items-center mt-8">
@@ -35,8 +49,9 @@ const ProfileScreen = () => {
        {/* </View> */}
 
       {/* Menu Items */}
-      <View className="p-6">
+      {/* <View className="p-6"> */}
         {/* Balance */}
+        <View className="pt-10">
         <View className="flex-row items-center mb-4 bg-[#F5F6FA] p-4 rounded-xl">
           <IconSymbol size={28} name="dollarsign.circle.fill" color={tintColor} />
           <View className="ml-4">
@@ -69,6 +84,7 @@ const ProfileScreen = () => {
           </View>
         </View>
       </View>
+    </View>
     </View>
   );
 };
