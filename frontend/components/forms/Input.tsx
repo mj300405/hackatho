@@ -12,7 +12,7 @@ export default function Input<T>(props: InputProps<T>) {
   return (
     <View>
       <InputLabel>{props.label}</InputLabel>
-      <TextInput className="border border-solid border-red-500" {...props} />
+      <TextInput className="border border-solid border-slate-300 rounded-xl" {...props} />
     </View>
   );
 }
