@@ -27,18 +27,18 @@ services:
     networks:
       - app-network
 
-  frontend:
-    build:
-      context: ..
-      dockerfile: devtools/Dockerfile.frontend
-    ports:
-      - "3000:3000"
-    volumes:
-      - ../frontend:/app
-    stdin_open: true
-    tty: true
-    networks:
-      - app-network
+  # frontend:
+  #   build:
+  #     context: ..
+  #     dockerfile: devtools/Dockerfile.frontend
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - ../frontend:/app
+  #   stdin_open: true
+  #   tty: true
+  #   networks:
+  #     - app-network
 
 volumes:
   pg_data:
