@@ -1,0 +1,25 @@
+# Base image
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install Poetry and system dependencies
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    && pip install poetry
+
+# Copy files
+COPY backend/pyproject.toml backend/poetry.lock /app/
+
+# Install dependencies
+RUN poetry config virtualenvs.create false && poetry install --no-dev
+
+# Copy backend files
+COPY backend /app
+
+# Expose port
+EXPOSE 8000
+
+# Run server
+CMD ["poetry", "run", "python", "manage.py", "runserver", "0.0.0.0:8000"]

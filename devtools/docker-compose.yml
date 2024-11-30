@@ -1,0 +1,47 @@
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: devtools/Dockerfile.backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../backend:/app
+    env_file:
+      - ../backend/.env
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  db:
+    image: postgres:15
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: your_user
+      POSTGRES_PASSWORD: your_password
+      POSTGRES_DB: your_db_name
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: devtools/Dockerfile.frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../frontend:/app
+    stdin_open: true
+    tty: true
+    networks:
+      - app-network
+
+volumes:
+  pg_data:
+
+networks:
+  app-network:

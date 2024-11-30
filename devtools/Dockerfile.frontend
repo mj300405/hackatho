@@ -1,0 +1,28 @@
+# Stage 1: Install dependencies and build the app
+FROM node:18-alpine AS build
+
+# Set the working directory
+WORKDIR /app
+
+# Install dependencies
+COPY frontend/package.json frontend/package-lock.json /app/
+RUN npm install
+
+# Copy application files and build
+COPY frontend /app
+RUN npm run build
+
+# Stage 2: Run the app
+FROM node:18-alpine
+
+# Set the working directory
+WORKDIR /app
+
+# Copy built files and dependencies
+COPY --from=build /app /app
+
+# Expose port
+EXPOSE 3000
+
+# Start the Next.js app
+CMD ["npm", "run", "start"]
