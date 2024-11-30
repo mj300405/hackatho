@@ -14,13 +14,13 @@ export default function App() {
   };
 
   const colors = [
-    { red: 26, green: 67, blue: 79 },
-    { red: 195, green: 244, blue: 77 },
-    { red: 97, green: 211, blue: 131 },
-    { red: 211, green: 194, blue: 248 },
-    { red: 250, green: 243, blue: 235 },
-    { red: 234, green: 250, blue: 239 },
-    { red: 245, green: 246, blue: 250 },
+    { red: 26, green: 67, blue: 79 }, // #1A434F
+    { red: 195, green: 244, blue: 77 }, // #C3F44D
+    { red: 97, green: 211, blue: 131 }, // #61D383
+    { red: 211, green: 194, blue: 248 }, // #D3C2F8
+    { red: 250, green: 243, blue: 235 }, // #FAF3EB
+    { red: 234, green: 250, blue: 239 }, // #EAFEEF
+    { red: 245, green: 246, blue: 250 }, // #F5F6FA
   ];
 
   useLayoutEffect(() => {
