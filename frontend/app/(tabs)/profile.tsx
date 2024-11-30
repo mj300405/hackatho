@@ -9,15 +9,28 @@ import { ThemedText } from "@/components/ThemedText";
 //   );
 // }
 import { View, Text, Image, TouchableOpacity } from 'react-native';
+import router from 'expo-router';
 import { useRouter } from 'expo-router';
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { useContext } from 'react';
+import { axiosContext } from '@/lib/axios';
 
 const ProfileScreen = () => {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const tintColor = '#1A434F'
+  const authContext = useContext(axiosContext);
+
+  const handleLogout = () => {
+    // Reset the tokens
+    authContext.setToken(null);
+    authContext.setRefreshToken(null);
+    
+    // Navigate back to index screen
+    router.replace("/login");
+    };
   //Colors[colorScheme ?? "light"].tint;
 
   return (
@@ -77,12 +90,12 @@ const ProfileScreen = () => {
         </View>
 
         {/* Logout */}
-        <View className="flex-row items-center mb-4 bg-[#F5F6FA] p-4 rounded-xl">
+        <TouchableOpacity className="flex-row items-center mb-4 bg-[#F5F6FA] p-4 rounded-xl" onPress={handleLogout}>
           <IconSymbol size={28} name="rectangle.portrait.and.arrow.right" color="red" />
           <View className="ml-4">
             <Text className="text-lg font-semibold">Logout</Text>
           </View>
-        </View>
+        </TouchableOpacity>
       </View>
     </View>
     </View>
