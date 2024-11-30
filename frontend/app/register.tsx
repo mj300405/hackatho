@@ -72,7 +72,7 @@ export default function Register() {
   };
 
   return (
-    <View className="bg-white px-2">
+    <View className="bg-white px-2 h-screen">
       <Text className="text-center">Register</Text>
       {error !== "" && (
         <Text className="text-center text-red-400">{error}</Text>
