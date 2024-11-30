@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from core.utils import get_incomplete_fields
 
 User = get_user_model()
 
@@ -29,7 +30,6 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
-        # Set profile_completed to False by default
         user.profile_completed = False
         user.save()
         return user
@@ -40,4 +40,16 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'email', 'age', 'location', 'personality_type', 
                  'available_time', 'budget_preference', 'profile_completed', 
                  'coins', 'exp')
-        read_only_fields = ('coins', 'exp')
+        read_only_fields = ('coins', 'exp', 'profile_completed')
+
+    def update(self, instance, validated_data):
+        # Update the user instance with validated data
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        
+        # Check if profile is complete after update
+        incomplete_fields = get_incomplete_fields(instance)
+        instance.profile_completed = not bool(incomplete_fields)
+        
+        instance.save()
+        return instance
