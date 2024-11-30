@@ -41,7 +41,7 @@ export default function Register() {
 
     axios
       .post(
-        `http://${process.env.EXPO_PUBLIC_SERVER_URL}/register/`,
+        `http://${process.env.EXPO_PUBLIC_SERVER_URL}/api/auth/register/`,
         requestBody,
       )
       .then((response) => {
