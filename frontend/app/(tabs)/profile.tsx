@@ -1,103 +1,92 @@
-import { ThemedText } from "@/components/ThemedText";
-//import { Text, View } from "react-native";
-
-// export default function Profile() {
-//   return (
-//     <View>
-//       <ThemedText>Profile</ThemedText>
-//     </View>
-//   );
-// }
-import { View, Text, Image, TouchableOpacity } from 'react-native';
-import router from 'expo-router';
-import { useRouter } from 'expo-router';
+import { View, Text, TouchableOpacity } from "react-native";
+import { useRouter } from "expo-router";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { useContext } from 'react';
-import { axiosContext } from '@/lib/axios';
+import { useContext, useLayoutEffect } from "react";
+import { axiosContext, AxiosContextType } from "@/lib/axios";
 
 const ProfileScreen = () => {
   const router = useRouter();
-  const colorScheme = useColorScheme();
-  const tintColor = '#1A434F'
-  const authContext = useContext(axiosContext);
+  const tintColor = "#1A434F";
+  const { setToken, setRefreshToken, refreshUser, user } = useContext(
+    axiosContext,
+  ) as AxiosContextType;
 
   const handleLogout = () => {
     // Reset the tokens
-    authContext.setToken(null);
-    authContext.setRefreshToken(null);
-    
+    setToken(null);
+    setRefreshToken(null);
+
     // Navigate back to index screen
     router.replace("/login");
-    };
+  };
   //Colors[colorScheme ?? "light"].tint;
+
+  useLayoutEffect(() => {
+    refreshUser();
+  }, []);
 
   return (
     <View className="flex-1 bg-white pt-12">
       <View className="px-8">
-      {/* Profile Header */}
-      <View className="flex-row items-center mb-4">
-        {/* Black Profile Picture Placeholder */}
-        <View className="w-16 h-16 bg-black rounded-2xl" />
-        
-        {/* User Info */}
-        <View className="ml-4">
-          <Text className="text-xl font-bold">Test Useer </Text>
-          <Text className="text-gray-500">test.user@gmail.com</Text>
+        {/* Profile Header */}
+        <View className="flex-row items-center mb-4">
+          {/* Black Profile Picture Placeholder */}
+          <View className="w-16 h-16 bg-black rounded-2xl" />
+
+          {/* User Info */}
+          <View className="ml-4">
+            <Text className="text-xl font-bold">{user?.username}</Text>
+            <Text className="text-gray-500">{user?.email}</Text>
+          </View>
         </View>
-      </View>
-
-
-      {/* Profile Section */}
-       {/* <View className="bg-black h-1/2 p-6"> */}
-        {/* <View className="items-center mt-8">
-          <Image
-            // source={{ uri: "/api/placeholder/100/100" }}
-            className="w-24 h-24 rounded-full"
-          /> */}
-          {/* <Text className="text-white text-xl font-bold mt-4">Test user</Text>
-          <Text className="text-gray-300 mt-1">test.user@gmail.com</Text>
-        </View> */}
-       {/* </View> */}
-
-      {/* Menu Items */}
-      {/* <View className="p-6"> */}
+        {/* Menu Items */}
         {/* Balance */}
         <View className="pt-10">
-        <View className="flex-row items-center mb-4 bg-[#F5F6FA] p-4 rounded-xl">
-          <IconSymbol size={28} name="dollarsign.circle.fill" color={tintColor} />
-          <View className="ml-4">
-            <Text className="text-lg font-semibold">Balance</Text>
-            <Text className="text-gray-600">1,234.56</Text>
+          <View className="flex-row items-center mb-4 bg-[#F5F6FA] p-4 rounded-xl">
+            <IconSymbol
+              size={28}
+              name="dollarsign.circle.fill"
+              color={tintColor}
+            />
+            <View className="ml-4">
+              <Text className="text-lg font-semibold">Balance</Text>
+              <Text className="text-gray-600">{user?.coins}</Text>
+            </View>
           </View>
-        </View>
 
-        {/* Notifications */}
-        <View className="flex-row items-center mb-4 bg-[#F5F6FA] p-4 rounded-xl">
-          <IconSymbol size={28} name="bell.fill" color={tintColor} />
-          <View className="ml-4">
-            <Text className="text-lg font-semibold">Notifications</Text>
+          {/* Notifications */}
+          <View className="flex-row items-center mb-4 bg-[#F5F6FA] p-4 rounded-xl">
+            <IconSymbol size={28} name="bell.fill" color={tintColor} />
+            <View className="ml-4">
+              <Text className="text-lg font-semibold">Notifications</Text>
+            </View>
           </View>
-        </View>
 
-        {/* Customer Support */}
-        <View className="flex-row items-center mb-4 bg-[#F5F6FA] p-4 rounded-xl">
-          <IconSymbol size={28} name="info.circle" color={tintColor} />
-          <View className="ml-4">
-            <Text className="text-lg font-semibold">Customer Support</Text>
+          {/* Customer Support */}
+          <View className="flex-row items-center mb-4 bg-[#F5F6FA] p-4 rounded-xl">
+            <IconSymbol size={28} name="info.circle" color={tintColor} />
+            <View className="ml-4">
+              <Text className="text-lg font-semibold">Customer Support</Text>
+            </View>
           </View>
-        </View>
 
-        {/* Logout */}
-        <TouchableOpacity className="flex-row items-center mb-4 bg-[#F5F6FA] p-4 rounded-xl" onPress={handleLogout}>
-          <IconSymbol size={28} name="rectangle.portrait.and.arrow.right" color="red" />
-          <View className="ml-4">
-            <Text className="text-lg font-semibold">Logout</Text>
-          </View>
-        </TouchableOpacity>
+          {/* Logout */}
+          <TouchableOpacity
+            className="flex-row items-center mb-4 bg-[#F5F6FA] p-4 rounded-xl"
+            onPress={handleLogout}
+          >
+            <IconSymbol
+              size={28}
+              name="rectangle.portrait.and.arrow.right"
+              color="red"
+            />
+            <View className="ml-4">
+              <Text className="text-lg font-semibold">Logout</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
     </View>
   );
 };

@@ -9,9 +9,10 @@ import { type User } from "./types";
 
 export type AxiosContextType = {
   axios: AxiosInstance;
-  setToken: (token: string) => void;
-  setRefreshToken: (refreshToken: string) => void;
+  setToken: (token: string | null) => void;
+  setRefreshToken: (refreshToken: string | null) => void;
   setUser: (user: User) => void;
+  refreshUser: () => void;
   user: User | null;
 };
 
@@ -31,6 +32,20 @@ export function AxiosProvider({ children }: { children: ReactNode }) {
   console.log("Refresh");
   console.log(refreshToken);
   // console.log(process.env.EXPO_PUBLIC_SERVER_URL);
+
+  const refreshUser = () => {
+    axiosInstance
+      .get("/api/auth/user/")
+      .then((response: AxiosResponse) => {
+        // console.log(response.data);
+        setUser(response.data);
+      })
+      .catch((e) => {
+        if (e instanceof AxiosError) {
+          console.error(e.toJSON());
+        }
+      });
+  };
 
   axiosInstance.interceptors.request.use(
     (config) => {
@@ -76,21 +91,17 @@ export function AxiosProvider({ children }: { children: ReactNode }) {
   );
 
   if (user === null && token !== null) {
-    axiosInstance
-      .get("/api/auth/user/")
-      .then((response: AxiosResponse) => {
-        // console.log(response.data);
-        setUser(response.data);
-      })
-      .catch((e) => {
-        if (e instanceof AxiosError) {
-          console.error(e.toJSON());
-        }
-      });
   }
   return (
     <axiosContext.Provider
-      value={{ axios: axiosInstance, setToken, setRefreshToken, user, setUser }}
+      value={{
+        axios: axiosInstance,
+        setToken,
+        setRefreshToken,
+        user,
+        setUser,
+        refreshUser,
+      }}
     >
       {children}
     </axiosContext.Provider>
