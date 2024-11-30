@@ -15,7 +15,7 @@ export function AxiosProvider({ children }: { children: ReactNode }) {
     baseURL: process.env.EXPO_PUBLIC_SERVER_URL,
   });
 
-  console.log(process.env.EXPO_PUBLIC_SERVER_URL);
+  // console.log(process.env.EXPO_PUBLIC_SERVER_URL);
 
   axiosInstance.interceptors.request.use(
     (config) => {
