@@ -19,6 +19,13 @@ export default function Login() {
           router.push("/register");
         }}
       />
+
+      <Button
+        title="Tabs"
+        onPress={() => {
+          router.push("/(tabs)");
+        }}
+      />
     </View>
   );
 }
