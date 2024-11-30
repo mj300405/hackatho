@@ -38,10 +38,11 @@ export default function RootLayout() {
     <AxiosProvider>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <SafeAreaView style={{ flex: 1 }}>
-          <Stack>
+          <Stack initialRouteName="(tabs)">
             <Stack.Screen name="index" options={{ headerShown: false }} />
             <Stack.Screen name="login" options={{ headerShown: false }} />
             <Stack.Screen name="register" options={{ headerShown: false }} />
+            <Stack.Screen name="(tabs)" />
             <Stack.Screen name="+not-found" />
           </Stack>
         </SafeAreaView>
