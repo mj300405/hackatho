@@ -3,6 +3,8 @@ import { createContext, ReactNode, useState } from "react";
 
 export type AxiosContextType = {
   axios: AxiosInstance;
+  setToken: (token: string) => void;
+  setRefreshToken: (refreshToken: string) => void;
 };
 
 export const axiosContext = createContext<AxiosContextType | null>(null);
@@ -15,7 +17,11 @@ export function AxiosProvider({ children }: { children: ReactNode }) {
     baseURL: process.env.EXPO_PUBLIC_SERVER_URL,
   });
 
-  console.log(process.env.EXPO_PUBLIC_SERVER_URL);
+  console.log("Token");
+  console.log(token);
+  console.log("Refresh");
+  console.log(refreshToken);
+  // console.log(process.env.EXPO_PUBLIC_SERVER_URL);
 
   axiosInstance.interceptors.request.use(
     (config) => {
@@ -61,7 +67,9 @@ export function AxiosProvider({ children }: { children: ReactNode }) {
   );
 
   return (
-    <axiosContext.Provider value={{ axios: axiosInstance }}>
+    <axiosContext.Provider
+      value={{ axios: axiosInstance, setToken, setRefreshToken }}
+    >
       {children}
     </axiosContext.Provider>
   );
