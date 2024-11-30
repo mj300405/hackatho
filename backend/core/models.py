@@ -22,16 +22,42 @@ class User(AbstractUser):
         ('ESFP', 'ESFP - Entertainer'),
     ]
     
-    age = models.PositiveIntegerField(null=True, blank=True)
-    location = models.CharField(max_length=255, blank=True)
+    # Fix for User model clashes
+    groups = models.ManyToManyField(
+        'auth.Group',
+        related_name='custom_user_set',
+        blank=True,
+        verbose_name='groups',
+        help_text='The groups this user belongs to.'
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        related_name='custom_user_set',
+        blank=True,
+        verbose_name='user permissions',
+        help_text='Specific permissions for this user.'
+    )
+    
+    # Required fields
+    age = models.PositiveIntegerField(null=False, blank=False)
+    location = models.CharField(max_length=255, null=False, blank=False)
     personality_type = models.CharField(
         max_length=4,
         choices=PERSONALITY_CHOICES,
+        null=False,
+        blank=False
+    )
+    coins = models.PositiveIntegerField(default=0, null=False, blank=False)
+    exp = models.PositiveIntegerField(default=0, null=False, blank=False)
+    
+    # Optional fields
+    personality_details = models.JSONField(default=dict, blank=True, null=True)
+    available_time = models.PositiveIntegerField(
+        help_text="Available minutes per day",
+        default=60,
+        null=True,
         blank=True
     )
-    # New fields for enhanced user preferences
-    personality_details = models.JSONField(default=dict, blank=True)  # Store detailed personality test results
-    available_time = models.PositiveIntegerField(help_text="Available minutes per day", default=60)
     budget_preference = models.CharField(
         max_length=20,
         choices=[
@@ -39,12 +65,23 @@ class User(AbstractUser):
             ('MEDIUM', '$50-200'),
             ('HIGH', '$200+')
         ],
-        default='MEDIUM'
+        default='MEDIUM',
+        null=True,
+        blank=True
     )
+    
     profile_completed = models.BooleanField(default=False)
-    coins = models.PositiveIntegerField(default=0)
-    exp = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
+
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Tag'
+        verbose_name_plural = 'Tags'
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -78,10 +115,13 @@ class Hobby(models.Model):
     related_hobbies = models.ManyToManyField('self', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     notes = models.TextField(blank=True)
-    tags = models.ManyToManyField('Tag', related_name='hobbies')
+    tags = models.ManyToManyField(Tag, related_name='hobbies')
     
     class Meta:
         verbose_name_plural = "hobbies"
+
+    def __str__(self):
+        return self.name
 
 class HobbyTasting(models.Model):
     hobby = models.ForeignKey(Hobby, on_delete=models.CASCADE, related_name='tastings')
@@ -91,6 +131,9 @@ class HobbyTasting(models.Model):
     equipment_needed = models.JSONField(default=list, blank=True)
     instructions = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} - {self.hobby.name}"
 
 class Challenge(models.Model):
     hobby = models.ForeignKey(Hobby, on_delete=models.CASCADE, related_name='challenges')
@@ -103,6 +146,9 @@ class Challenge(models.Model):
     successful = models.BooleanField(default=False)
     expiration_date = models.DateTimeField()
 
+    def __str__(self):
+        return f"Challenge for {self.hobby.name} - {self.user.username}"
+
 class UserHobby(models.Model):
     class Status(models.TextChoices):
         ACTIVE = 'active', 'Active'
@@ -112,8 +158,8 @@ class UserHobby(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_hobbies')
     hobby = models.ForeignKey(Hobby, on_delete=models.CASCADE, related_name='user_hobbies')
     status = models.CharField(max_length=10, choices=Status.choices)
-    notes = models.TextField(blank=True)  # Personal notes about the hobby
-    resources_links = models.JSONField(default=list, blank=True)  # To store useful links
+    notes = models.TextField(blank=True)
+    resources_links = models.JSONField(default=list, blank=True)
     started_at = models.DateTimeField(auto_now_add=True)
     last_activity = models.DateTimeField(auto_now=True)
     rating = models.PositiveIntegerField(
@@ -122,31 +168,31 @@ class UserHobby(models.Model):
         blank=True
     )
 
-class HobbyResource(models.Model):
-    hobby = models.ForeignKey(Hobby, on_delete=models.CASCADE, related_name='resources')
-    title = models.CharField(max_length=255)
-    url = models.URLField()
-    description = models.TextField(blank=True)
-    resource_type = models.CharField(max_length=50)  # tutorial, inspiration, material
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    def __str__(self):
+        return f"{self.user.username}'s {self.hobby.name} - {self.status}"
 
 class RouletteHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='roulette_history')
     hobby = models.ForeignKey(Hobby, on_delete=models.CASCADE)
     suggested_at = models.DateTimeField(auto_now_add=True)
     was_accepted = models.BooleanField(default=False)
-    coins_spent = models.PositiveIntegerField(default=0)  # If user paid for early access
+    coins_spent = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.user.username}'s roulette - {self.hobby.name}"
 
 class SystemSettings(models.Model):
-    """Global settings for prices and timings"""
     roulette_cooldown_hours = models.PositiveIntegerField(default=24)
-    roulette_early_price = models.PositiveIntegerField(default=50)  # coins cost
+    roulette_early_price = models.PositiveIntegerField(default=50)
     new_hobby_activation_price = models.PositiveIntegerField(default=100)
-    hobby_deletion_price = models.PositiveIntegerField(default=0)  # free
+    hobby_deletion_price = models.PositiveIntegerField(default=0)
     
     class Meta:
         verbose_name = 'System Settings'
         verbose_name_plural = 'System Settings'
+
+    def __str__(self):
+        return "System Settings"
 
     @classmethod
     def get_settings(cls):
