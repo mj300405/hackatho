@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { Image, StyleSheet, Platform , Text} from 'react-native';
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -31,7 +31,7 @@ export default function HomeScreen() {
               web: 'F12'
             })}
           </ThemedText>{' '}
-          to open developer tools.
+          to open developer tools.<Text className='color-red-500'>CZERWONY</Text>
         </ThemedText>
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
