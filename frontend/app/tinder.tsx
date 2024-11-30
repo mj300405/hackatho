@@ -7,7 +7,7 @@ import TinderCard from "react-tinder-card";
 export default function Tinder() {
   const authContext = useContext(axiosContext) as AxiosContextType;
   authContext.axios
-    .get(
+    .post(
       `http://${process.env.EXPO_PUBLIC_SERVER_URL}/api/recommendations/initial/${authContext.user?.id}/`,
     )
     .then((response: AxiosResponse) => {
