@@ -1,19 +1,26 @@
-# Authentication API Documentation
-
-This document outlines the authentication endpoints and their usage for the hobby discovery application.
+# Hobby Discovery API Documentation
 
 ## Table of Contents
-- [Registration](#registration)
-- [Login](#login)
-- [Token Refresh](#token-refresh)
-- [User Details](#user-details)
+- [Authentication](#authentication)
+  - [Registration](#registration)
+  - [Login](#login)
+  - [Token Refresh](#token-refresh)
+  - [User Details](#user-details)
+- [Hobbies](#hobbies)
+  - [List User Hobbies](#list-user-hobbies)
+  - [Get Hobby Details](#get-hobby-details)
+  - [Update Hobby Status](#update-hobby-status)
+- [Recommendations](#recommendations)
+  - [Initial Recommendations](#initial-recommendations)
 - [Important Notes](#important-notes)
 
-## Registration
+## Authentication
 
-**Endpoint:** `POST /api/register/`
+### Registration
 
-### Request Body:
+**Endpoint:** `POST /api/auth/register/`
+
+**Request Body:**
 ```json
 {
     "username": "testuser",
@@ -33,9 +40,10 @@ This document outlines the authentication endpoints and their usage for the hobb
 }
 ```
 
-### Success Response (200 OK):
+**Success Response (201 Created):**
 ```json
 {
+    "id": 1,
     "username": "testuser",
     "email": "test@example.com",
     "age": 25,
@@ -48,24 +56,18 @@ This document outlines the authentication endpoints and their usage for the hobb
         "judging": 55
     },
     "available_time": 60,
-    "budget_preference": "MEDIUM"
+    "budget_preference": "MEDIUM",
+    "profile_completed": false,
+    "coins": 0,
+    "exp": 0
 }
 ```
 
-### Error Response (400 Bad Request):
-```json
-{
-    "username": ["A user with that username already exists."],
-    "email": ["Enter a valid email address."],
-    "password": ["This password is too common."]
-}
-```
+### Login
 
-## Login
+**Endpoint:** `POST /api/auth/token/`
 
-**Endpoint:** `POST /api/token/`
-
-### Request Body:
+**Request Body:**
 ```json
 {
     "username": "testuser",
@@ -73,7 +75,7 @@ This document outlines the authentication endpoints and their usage for the hobb
 }
 ```
 
-### Success Response (200 OK):
+**Success Response (200 OK):**
 ```json
 {
     "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
@@ -81,49 +83,34 @@ This document outlines the authentication endpoints and their usage for the hobb
 }
 ```
 
-### Error Response (401 Unauthorized):
-```json
-{
-    "detail": "No active account found with the given credentials"
-}
-```
+### Token Refresh
 
-## Token Refresh
+**Endpoint:** `POST /api/auth/token/refresh/`
 
-**Endpoint:** `POST /api/token/refresh/`
-
-### Request Body:
+**Request Body:**
 ```json
 {
     "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
 }
 ```
 
-### Success Response (200 OK):
+**Success Response (200 OK):**
 ```json
 {
     "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
 }
 ```
 
-### Error Response (401 Unauthorized):
-```json
-{
-    "detail": "Token is invalid or expired",
-    "code": "token_not_valid"
-}
-```
+### User Details
 
-## User Details
+**Endpoint:** `GET /api/auth/user/`
 
-**Endpoint:** `GET /api/user/`
-
-### Request Headers:
+**Headers:**
 ```
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
 ```
 
-### Success Response (200 OK):
+**Success Response (200 OK):**
 ```json
 {
     "id": 1,
@@ -134,62 +121,207 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
     "personality_type": "INTJ",
     "available_time": 60,
     "budget_preference": "MEDIUM",
-    "profile_completed": false,
+    "profile_completed": true,
     "coins": 0,
     "exp": 0
 }
 ```
 
-### Error Response (401 Unauthorized):
+## Hobbies
+
+### List User Hobbies
+
+**Endpoint:** `GET /api/hobbies/my/`
+
+**Headers:**
+```
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
+```
+
+**Success Response (200 OK):**
+```json
+[
+    {
+        "id": 1,
+        "hobby": {
+            "id": 1,
+            "name": "Urban Sketching",
+            "description": "A creative hobby involving drawing city scenes...",
+            "difficulty_level": "BEGINNER",
+            "time_commitment": 30,
+            "price_range": "$20-$50",
+            "required_equipment": ["sketchbook", "pencils", "pens"],
+            "minimum_age": 12
+        },
+        "status": "active",
+        "notes": "Really enjoying this!",
+        "resources_links": [],
+        "started_at": "2024-11-30T16:36:07Z",
+        "last_activity": "2024-11-30T16:36:07Z",
+        "rating": 5
+    }
+]
+```
+
+### Get Hobby Details
+
+**Endpoint:** `GET /api/hobbies/{hobby_id}/`
+
+**Headers:**
+```
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
+```
+
+**Success Response (200 OK):**
 ```json
 {
-    "detail": "Authentication credentials were not provided."
+    "id": 1,
+    "hobby": {
+        "id": 1,
+        "name": "Urban Sketching",
+        "description": "A creative hobby involving drawing city scenes...",
+        "difficulty_level": "BEGINNER",
+        "time_commitment": 30,
+        "price_range": "$20-$50",
+        "required_equipment": ["sketchbook", "pencils", "pens"],
+        "minimum_age": 12
+    },
+    "status": "active",
+    "notes": "Really enjoying this!",
+    "resources_links": [],
+    "started_at": "2024-11-30T16:36:07Z",
+    "last_activity": "2024-11-30T16:36:07Z",
+    "rating": 5
+}
+```
+
+### Update Hobby Status
+
+**Endpoint:** `PATCH /api/hobbies/{hobby_id}/status/`
+
+**Headers:**
+```
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
+```
+
+**Request Body:**
+```json
+{
+    "status": "favorite",
+    "notes": "Really enjoying this hobby!",
+    "rating": 5
+}
+```
+
+**Success Response (200 OK):**
+```json
+{
+    "id": 1,
+    "hobby": {
+        "id": 1,
+        "name": "Urban Sketching",
+        "description": "A creative hobby involving drawing city scenes...",
+        "difficulty_level": "BEGINNER",
+        "time_commitment": 30,
+        "price_range": "$20-$50",
+        "required_equipment": ["sketchbook", "pencils", "pens"],
+        "minimum_age": 12
+    },
+    "status": "favorite",
+    "notes": "Really enjoying this hobby!",
+    "resources_links": [],
+    "started_at": "2024-11-30T16:36:07Z",
+    "last_activity": "2024-11-30T16:36:07Z",
+    "rating": 5
+}
+```
+
+## Recommendations
+
+### Initial Recommendations
+
+**Endpoint:** `GET /api/recommendations/initial/{user_id}/`
+
+**Headers:**
+```
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
+```
+
+**Success Response (200 OK):**
+```json
+{
+    "message": "Initial recommendations generated successfully",
+    "recommendations": [
+        {
+            "id": 1,
+            "name": "Urban Sketching",
+            "description": "A creative hobby involving drawing city scenes...",
+            "difficulty_level": "BEGINNER",
+            "time_commitment": 30,
+            "price_range": "$20-$50",
+            "required_equipment": ["sketchbook", "pencils", "pens"],
+            "minimum_age": 12,
+            "match_level": "BEST"
+        }
+    ]
 }
 ```
 
 ## Important Notes
 
 ### Authentication
-- After successful login, store both access and refresh tokens
-- Include access token in all authenticated requests in Authorization header
 - Access token expires in 60 minutes
+- Include access token in all authenticated requests
 - Use refresh token to get new access token when needed
 
-### Authorization Header Format
-```javascript
-headers: {
-    'Authorization': 'Bearer your_access_token_here'
-}
-```
-
-### Optional Registration Fields
+### Required Fields
+**Registration:**
+- username
+- email
+- password
 - age
 - location
 - personality_type
+
+### Optional Fields
+**Registration:**
 - personality_details
-- available_time
-- budget_preference
+- available_time (defaults to 60)
+- budget_preference (defaults to "MEDIUM")
 
-### Error Handling
-- 400 responses indicate validation errors
-- 401 responses indicate authentication errors
-- Implement token refresh logic when receiving 401 responses
+### Status Types
+- active: Currently pursuing
+- favorite: Marked as favorite
+- completed: Finished or mastered
 
-### Personality Types
-Available personality types for the `personality_type` field:
-- INTJ - Architect
-- INTP - Logician
-- ENTJ - Commander
-- ENTP - Debater
-- INFJ - Advocate
-- INFP - Mediator
-- ENFJ - Protagonist
-- ENFP - Campaigner
-- ISTJ - Logistician
-- ISFJ - Defender
-- ESTJ - Executive
-- ESFJ - Consul
-- ISTP - Virtuoso
-- ISFP - Adventurer
-- ESTP - Entrepreneur
-- ESFP - Entertainer
+### Error Responses
+
+**401 Unauthorized:**
+```json
+{
+    "detail": "Authentication credentials were not provided."
+}
+```
+
+**403 Forbidden:**
+```json
+{
+    "error": "Profile incomplete",
+    "message": "Please complete your profile before accessing this feature"
+}
+```
+
+**404 Not Found:**
+```json
+{
+    "error": "Hobby not found for this user"
+}
+```
+
+**400 Bad Request:**
+```json
+{
+    "error": "Invalid status",
+    "message": "Status must be one of: active, favorite, completed"
+}
+```
