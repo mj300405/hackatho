@@ -17,6 +17,10 @@ const MAPPING = {
   "person.crop.circle": "account-circle",
   "person.2.fill": "people",
   "suit.spade.fill": "casino",
+  "dollarsign.circle.fill": "paid",
+  "bell.fill": "notifications",
+  "info.circle": "info",
+  "rectangle.portrait.and.arrow.right": "logout",
 } as Partial<
   Record<
     import("expo-symbols").SymbolViewProps["name"],
