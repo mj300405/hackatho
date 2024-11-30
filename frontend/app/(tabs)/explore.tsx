@@ -1,9 +1,10 @@
-import { Text, View } from "react-native";
+import { ThemedText } from "@/components/ThemedText";
+import { View } from "react-native";
 
 export default function Explore() {
   return (
     <View>
-      <Text>Explore</Text>
+      <ThemedText>Explore</ThemedText>
     </View>
   );
 }

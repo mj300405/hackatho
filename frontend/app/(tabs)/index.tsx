@@ -1,9 +1,10 @@
-import { Text, View } from "react-native";
+import { ThemedText } from "@/components/ThemedText";
+import { View } from "react-native";
 
 export default function Home() {
   return (
     <View>
-      <Text>Home</Text>
+      <ThemedText>Home</ThemedText>
     </View>
   );
 }

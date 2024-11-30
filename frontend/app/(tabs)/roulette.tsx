@@ -1,9 +1,10 @@
+import { ThemedText } from "@/components/ThemedText";
 import { Text, View } from "react-native";
 
 export default function Roulette() {
   return (
     <View>
-      <Text>Roulette</Text>
+      <ThemedText>Roulette</ThemedText>
     </View>
   );
 }
