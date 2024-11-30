@@ -1,1 +1,1 @@
-# hackatho
+# hackathon
