@@ -13,7 +13,7 @@ const MAPPING = {
   "paperplane.fill": "send",
   "chevron.left.forwardslash.chevron.right": "code",
   "chevron.right": "chevron-right",
-  "binoculars.fill": "explore",
+  "safari.fill": "explore",
   "person.crop.circle": "account-circle",
   "person.2.fill": "people",
   "suit.spade.fill": "casino",
