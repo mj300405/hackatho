@@ -7,9 +7,8 @@ from django.shortcuts import get_object_or_404
 from core.decorators import profile_completed_required
 from .services import HobbyRecommendationService
 from hobbies.models import Hobby, Category, UserHobby
-from .serializers import HobbyRecommendationSerializer, InitialRecommendationRequestSerializer
+from .serializers import HobbyRecommendationSerializer
 from core.models import User
-from rest_framework.exceptions import ValidationError
 
 class InitialHobbyRecommendationView(APIView):
     permission_classes = [IsAuthenticated]
