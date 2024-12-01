@@ -12,27 +12,17 @@ export default function Tinder() {
   const [creatingRecomendations, setCreatingRecomendations] =
     useState<boolean>(true);
 
-  // TODO: Uncomment this code to fetch recommendations from the server
-
-  const [cards, setCards] = useState<
-    (HobbyType & { direction: Direction | null })[]
-  >([]);
+  const [cards, setCards] = useState<HobbyType[]>([]);
+  const [selectedCards, setSelectedCards] = useState<number[]>([]);
+  const [cardsSwiped, setCardsSwiped] = useState<number>(0);
 
   // Retriev created recomendations from the server
   const fetchRecomendations = () => {
     console.log("Fetching recomendations");
     authContext.axios
-      .get(
-        `http://${process.env.EXPO_PUBLIC_SERVER_URL}/api/recommendations/initial/${authContext.user?.id}/`,
-      )
+      .get(`/api/recommendations/initial/${authContext.user?.id}/`)
       .then((response: AxiosResponse) => {
-        // Adding direction property to Hobby object.
-        const cardsWithDir = response.data.recommendations.map(
-          (hobby: HobbyType) => {
-            return { ...hobby, direction: null };
-          },
-        );
-        setCards(cardsWithDir);
+        setCards(response.data.recommendations);
       })
       .catch((e) => {
         if (e instanceof AxiosError) {
@@ -54,7 +44,15 @@ export default function Tinder() {
       })
       .catch((e) => {
         if (e instanceof AxiosError) {
-          console.error(e.response?.data);
+          if (
+            e.response?.data.error ===
+            "Initial recommendations already generated"
+          ) {
+            setCreatingRecomendations(false);
+            fetchRecomendations();
+          } else {
+            console.error(e.response?.data);
+          }
         }
       });
   };
@@ -66,32 +64,43 @@ export default function Tinder() {
   }, []);
 
   const handleSwipe = (direction: Direction, id: number) => {
-    const newCards = [...cards];
-    const swipedCard = newCards.find((c) => c.id === id);
-    if (swipedCard !== undefined) swipedCard.direction = direction;
-    setCards(newCards);
+    setCardsSwiped((prev) => prev + 1);
+    if (direction === "right") {
+      const newSelectedCards = [...selectedCards, id];
+      setSelectedCards(newSelectedCards);
+    }
   };
 
   useEffect(() => {
-    if (cards.length === 0) return;
-    let allSwiped = true;
-    cards.forEach((card) => {
-      if (card.direction === null) {
-        allSwiped = false;
-      }
-    });
-    if (allSwiped) {
+    console.log(cardsSwiped);
+    if (cardsSwiped === cards.length) {
       console.log("All cards swiped.");
-      // TODO: upload swiped cards somewhere and redirect somewhere
-      // tylko id
+      const data = selectedCards.map((card) => {
+        return {
+          id: card,
+          status: "favorite",
+        };
+      });
+      authContext.axios
+        .patch("/api/hobbies/status/", data)
+        .then((response: AxiosResponse) => {
+          console.log(response.data);
+        })
+        .catch((e) => {
+          if (e instanceof AxiosError) {
+            console.log(e.response?.data);
+          }
+        });
     }
-  }, [cards]);
+  }, [cardsSwiped]);
 
   return (
     <View className="h-screen flex flex-col items-center bg-white w-screen">
       <Text>Tinder🔥</Text>
       <View className="h-full w-96 flex flex-col justify-center items-center bg-white">
+        {/* Show loding when getting the messages (takes a bit of time) */}
         {creatingRecomendations && <Text>Creating recomendations...</Text>}
+        {/* Show the tinder swiper when the data is ready */}
         {creatingRecomendations === false &&
           cards.map((card, index) => {
             return (
