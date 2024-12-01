@@ -1,7 +1,7 @@
 import { View, Text } from "react-native";
 
 type TinderCardWrapperProps = {
-  children: string;
+  children: string | string[];
 };
 
 export default function TinderCardWrapper(props: TinderCardWrapperProps) {
