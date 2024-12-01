@@ -1,5 +1,6 @@
-import { useRouter } from "expo-router";
+import { useRouter, Link } from "expo-router";
 import { Text, View, TextInput, Button, Image, TouchableOpacity } from "react-native";
+
 
 export default function Login() {
   const router = useRouter();
@@ -56,6 +57,9 @@ export default function Login() {
         title="Tabs"
         onPress={() => {router.push("/(tabs)");}}
         />
+        <Link href="/tinder" className="text-white">
+          Tinder
+        </Link>
 
       </View>    
     </View>
