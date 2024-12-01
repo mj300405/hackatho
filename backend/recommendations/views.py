@@ -5,10 +5,12 @@ from rest_framework.permissions import IsAuthenticated
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from core.decorators import profile_completed_required
-from .services import HobbyRecommendationService
+from .services import HobbyRecommendationService, ExplorationRecommendationService, RouletteService
 from hobbies.models import Hobby, Category, UserHobby
-from .serializers import HobbyRecommendationSerializer
+from .serializers import HobbyRecommendationSerializer, RouletteHistorySerializer
 from core.models import User
+from .models import RouletteHistory
+from core.decorators import check_roulette_access
 
 class InitialHobbyRecommendationView(APIView):
     permission_classes = [IsAuthenticated]
@@ -168,8 +170,8 @@ class ExploreRecommendationsView(APIView):
             ).select_related('hobby')
             
             # Enhance the recommendation service with user's hobby history
-            service = HobbyRecommendationService()
-            recommendations = service.get_exploration_recommendations(
+            service = ExplorationRecommendationService()
+            recommendations = service.get_recommendations(
                 user=request.user,
                 active_hobbies=active_hobbies,
                 favorite_hobbies=favorite_hobbies
@@ -227,5 +229,69 @@ class ExploreRecommendationsView(APIView):
         except Exception as e:
             return Response({
                 "error": "Error processing recommendations",
+                "message": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class RouletteView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    @profile_completed_required()
+    @check_roulette_access()
+    def post(self, request):
+        try:
+            with transaction.atomic():
+                # Get random hobby recommendation
+                service = RouletteService()
+                recommendation = service.get_random_hobby(request.user)
+                
+                # Create or get the hobby
+                category, _ = Category.objects.get_or_create(
+                    name=recommendation['category_name']
+                )
+                
+                hobby, created = Hobby.objects.get_or_create(
+                    name__iexact=recommendation['name'],
+                    defaults={
+                        'name': recommendation['name'],
+                        'description': recommendation['description'],
+                        'difficulty_level': recommendation['difficulty_level'],
+                        'time_commitment': recommendation['time_commitment'],
+                        'price_range': recommendation['price_range'],
+                        'required_equipment': recommendation['required_equipment'],
+                        'minimum_age': recommendation['minimum_age'],
+                        'category': category
+                    }
+                )
+                
+                # Calculate cost if it's not a free spin
+                coins_spent = 0
+                if not request.user.can_use_roulette_free():
+                    coins_spent = request.user.get_roulette_cost()
+                    request.user.coins -= coins_spent
+                    request.user.save()
+                
+                # Record the roulette spin
+                history = RouletteHistory.objects.create(
+                    user=request.user,
+                    hobby=hobby,
+                    coins_spent=coins_spent
+                )
+                
+                # Prepare response
+                history_data = RouletteHistorySerializer(history).data
+                hobby_data = HobbyRecommendationSerializer(hobby).data
+                
+                return Response({
+                    "message": "Random hobby generated successfully",
+                    "history": history_data,
+                    "recommendation": hobby_data,
+                    "coins_spent": coins_spent,
+                    "remaining_coins": request.user.coins
+                })
+                
+        except Exception as e:
+            return Response({
+                "error": "Failed to generate random hobby",
                 "message": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

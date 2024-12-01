@@ -1,9 +1,23 @@
+import { useContext } from "react";
 import { ScrollView, StyleSheet, Button, View, Text } from "react-native";
 import { useLayoutEffect, useState } from "react";
+import { axiosContext, AxiosContextType } from "@/lib/axios";
 import W3CtextColor from "@/lib/W3CTextColor";
+import { AxiosError } from "axios";
+import { router } from "expo-router";
+import type { HobbyRouletteResponse } from "@/lib/types";
 
 export default function App() {
-  const finalElement = {
+  const { axios } = useContext(axiosContext) as AxiosContextType;
+
+  const [text, setText] = useState<string>("Give me a spin!");
+  const [showHobby, setShowHobby] = useState<boolean>(false);
+  const [showSpin, setShowSpin] = useState<boolean>(true);
+  const [hobby, setHobby] = useState<HobbyRouletteResponse | null>(null);
+
+  let finalElement = {
+    name: "Hobby",
+    id: 0,
     color: {
       red: 255,
       green: 255,
@@ -22,6 +36,28 @@ export default function App() {
     { red: 234, green: 250, blue: 239 }, // #EAFEEF
     { red: 245, green: 246, blue: 250 }, // #F5F6FA
   ];
+
+  const getRandomHobby = async () => {
+    await axios
+      .post("/api/recommendations/roulette/", {})
+      .then((response) => {
+        setHobby(response.data);
+        console.log(response.data);
+        spin();
+      })
+      .catch((e) => {
+        //   if errorcode === 203  send message to user
+        if (e instanceof AxiosError) {
+          if (e.response?.status === 203) {
+            setText("No spin alowed for now...");
+            return;
+          }
+        }
+        setText("An error occured!");
+        console.error(e);
+        throw e;
+      });
+  };
 
   useLayoutEffect(() => {
     const color = randomColor();
@@ -46,6 +82,7 @@ export default function App() {
   const [color, setColor] = useState(randomColor());
 
   const spin = () => {
+    setText("Spinning...");
     const time = 2000; // 2 seconds
     const start = Date.now();
     const interval = setInterval(() => {
@@ -53,6 +90,8 @@ export default function App() {
       if (elapsed >= time) {
         clearInterval(interval);
         setColor(finalElement.color);
+        setShowSpin(false);
+        setShowHobby(true);
         return;
       }
       setColor(randomColor());
@@ -71,16 +110,26 @@ export default function App() {
     >
       <View className="flex-row justify-center">
         <View
-          className="w-[90%] aspect-square rounded-2xl"
+          className="w-[90%] aspect-square rounded-2xl flex justify-center"
           style={{ backgroundColor: color.style, padding: 20 }}
         >
-          <Text style={{ color: color.textColor }}>
-            L∷ᒷᒲ ╎!¡ᓭ⚍ᒲ ↸𝙹ꖎ𝙹∷ ᓭ╎ℸ ̣ , ᔑᒲᒷℸ ̣ ᓵ𝙹リᓭᒷᓵℸ ̣ ᒷℸ ̣ ⚍∷ ᔑ↸╎!¡╎ᓭ╎ᓵ╎リ⊣ ᒷꖎ╎ℸ
-            ̣. O!¡ℸ ̣ ╎𝙹, ᔑ∷ᓵ⍑╎ℸ ̣ ᒷᓵℸ ̣
+          <Text
+            className="text-center font-bold text-2xl"
+            style={{ color: color.textColor }}
+          >
+            {showHobby ? hobby?.recommendation.name : text}
           </Text>
         </View>
       </View>
-      <Button title="Spin" onPress={spin} />
+      {showSpin && <Button title="Spin" onPress={getRandomHobby} />}
+      {showHobby && (
+        <Button
+          title="Check out your new hobby!"
+          onPress={() => {
+            router.push(`/(tabs)/details/${hobby?.recommendation.id}`);
+          }}
+        />
+      )}
     </View>
   );
 }

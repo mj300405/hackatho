@@ -1,6 +1,16 @@
 import Input from "@/components/forms/Input";
-import { View, Text, Button, TouchableOpacity, SafeAreaView, Image, ScrollView, TextInput, TextInputProps } from "react-native";
-import { useState } from "react";
+import {
+  View,
+  Text,
+  Button,
+  TouchableOpacity,
+  SafeAreaView,
+  Image,
+  ScrollView,
+  TextInput,
+  TextInputProps,
+} from "react-native";
+import { useRef, useState } from "react";
 import { Picker } from "@react-native-picker/picker";
 import InputLabel from "@/components/forms/InputLabel";
 import axios, { AxiosError } from "axios";
@@ -20,6 +30,12 @@ export default function Register() {
   const [budget, setBudget] = useState<string>("LOW");
 
   const [error, setError] = useState<string>("");
+
+  const ref = useRef<ScrollView | null>(null);
+
+  const scrollToTop = () => {
+    ref.current?.scrollTo({ y: 0, animated: true });
+  };
 
   const handleRegister = () => {
     console.log("Registering user");
@@ -67,6 +83,7 @@ export default function Register() {
           keys.forEach((key) => {
             if (error.response?.data[key]) {
               setError(`${key}: ${error.response?.data[key][0]}`);
+              scrollToTop();
             }
           });
         }
@@ -75,12 +92,16 @@ export default function Register() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} ref={ref}>
         <View className="px-8">
           {/* Header */}
           <View className="items-center mt-12 mb-8">
-            <Text className="text-2xl font-bold text-[#1A1C1E]">Create Account</Text>
-            <Text className="text-gray-500 mt-2">Please fill in the details</Text>
+            <Text className="text-2xl font-bold text-[#1A1C1E]">
+              Create Account
+            </Text>
+            <Text className="text-gray-500 mt-2">
+              Please fill in the details
+            </Text>
           </View>
 
           {/* Error message */}
@@ -149,37 +170,95 @@ export default function Register() {
           />
 
           <View className="bg-[#F5F6FA] rounded-xl mb-4">
-            <Picker 
-              selectedValue={personality} 
-              onValueChange={setPersonality}
-            >
-              <Picker.Item label="Architect (INTJ)" value="INTJ" color="#9CA3AF"/>
-              <Picker.Item label="Logician (INTP)" value="INTP" color="#9CA3AF"/>
-              <Picker.Item label="Commander (ENTJ)" value="ENTJ" color="#9CA3AF"/>
-              <Picker.Item label="Debater (ENTP)" value="ENTP" color="#9CA3AF"/>
-              <Picker.Item label="Advocate (INFJ)" value="INFJ" color="#9CA3AF"/>
-              <Picker.Item label="Mediator (INFP)" value="INFP" color="#9CA3AF"/>
-              <Picker.Item label="Protagonist (ENFJ)" value="ENFJ" color="#9CA3AF"/>
-              <Picker.Item label="Campaigner (ENFP)" value="ENFP" color="#9CA3AF"/>
-              <Picker.Item label="Logistician (ISTJ)" value="ISTJ" color="#9CA3AF"/>
-              <Picker.Item label="Defender (ISFJ)" value="ISFJ" color="#9CA3AF"/>
-              <Picker.Item label="Executive (ESTJ)" value="ESTJ" color="#9CA3AF"/>
-              <Picker.Item label="Consul (ESFJ)" value="ESFJ" color="#9CA3AF"/>
-              <Picker.Item label="Virtuoso (ISTP)" value="ISTP" color="#9CA3AF"/>
-              <Picker.Item label="Adventurer (ISFP)" value="ISFP" color="#9CA3AF"/>
-              <Picker.Item label="Entrepreneur (ESTP)" value="ESTP" color="#9CA3AF"/>
-              <Picker.Item label="Entertainer (ESFP)" value="ESFP" color="#9CA3AF"/>
+            <Picker selectedValue={personality} onValueChange={setPersonality}>
+              <Picker.Item
+                label="Architect (INTJ)"
+                value="INTJ"
+                color="#9CA3AF"
+              />
+              <Picker.Item
+                label="Logician (INTP)"
+                value="INTP"
+                color="#9CA3AF"
+              />
+              <Picker.Item
+                label="Commander (ENTJ)"
+                value="ENTJ"
+                color="#9CA3AF"
+              />
+              <Picker.Item
+                label="Debater (ENTP)"
+                value="ENTP"
+                color="#9CA3AF"
+              />
+              <Picker.Item
+                label="Advocate (INFJ)"
+                value="INFJ"
+                color="#9CA3AF"
+              />
+              <Picker.Item
+                label="Mediator (INFP)"
+                value="INFP"
+                color="#9CA3AF"
+              />
+              <Picker.Item
+                label="Protagonist (ENFJ)"
+                value="ENFJ"
+                color="#9CA3AF"
+              />
+              <Picker.Item
+                label="Campaigner (ENFP)"
+                value="ENFP"
+                color="#9CA3AF"
+              />
+              <Picker.Item
+                label="Logistician (ISTJ)"
+                value="ISTJ"
+                color="#9CA3AF"
+              />
+              <Picker.Item
+                label="Defender (ISFJ)"
+                value="ISFJ"
+                color="#9CA3AF"
+              />
+              <Picker.Item
+                label="Executive (ESTJ)"
+                value="ESTJ"
+                color="#9CA3AF"
+              />
+              <Picker.Item label="Consul (ESFJ)" value="ESFJ" color="#9CA3AF" />
+              <Picker.Item
+                label="Virtuoso (ISTP)"
+                value="ISTP"
+                color="#9CA3AF"
+              />
+              <Picker.Item
+                label="Adventurer (ISFP)"
+                value="ISFP"
+                color="#9CA3AF"
+              />
+              <Picker.Item
+                label="Entrepreneur (ESTP)"
+                value="ESTP"
+                color="#9CA3AF"
+              />
+              <Picker.Item
+                label="Entertainer (ESFP)"
+                value="ESFP"
+                color="#9CA3AF"
+              />
             </Picker>
           </View>
 
           <View className="bg-[#F5F6FA] rounded-xl mb-4">
-            <Picker 
-              selectedValue={budget} 
-              onValueChange={setBudget}
-            >
-              <Picker.Item label="Low Budget" value="LOW" color="#9CA3AF"/>
-              <Picker.Item label="Medium Budget" value="MEDIUM" color="#9CA3AF"/>
-              <Picker.Item label="High Budget" value="HIGH" color="#9CA3AF"/>
+            <Picker selectedValue={budget} onValueChange={setBudget}>
+              <Picker.Item label="Low Budget" value="LOW" color="#9CA3AF" />
+              <Picker.Item
+                label="Medium Budget"
+                value="MEDIUM"
+                color="#9CA3AF"
+              />
+              <Picker.Item label="High Budget" value="HIGH" color="#9CA3AF" />
             </Picker>
           </View>
 
@@ -193,8 +272,8 @@ export default function Register() {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            className="mb-12" 
+          <TouchableOpacity
+            className="mb-12"
             onPress={() => router.push("/login")}
           >
             <Text className="text-[#1A434F] text-center">

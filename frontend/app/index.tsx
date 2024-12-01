@@ -1,6 +1,12 @@
 import { useRouter, Link } from "expo-router";
-import { Text, View, TextInput, Button, Image, TouchableOpacity } from "react-native";
-
+import {
+  Text,
+  View,
+  TextInput,
+  Button,
+  Image,
+  TouchableOpacity,
+} from "react-native";
 
 export default function Login() {
   const router = useRouter();
@@ -10,7 +16,7 @@ export default function Login() {
       {/* Header container - now centered */}
       <View className="flex-1 justify-center items-center">
         <View className="flex-row items-center">
-          <Image 
+          <Image
             source={require("@/assets/images/app-icon.png")}
             style={{ width: 32, height: 32 }}
             className="mr-3"
@@ -19,11 +25,11 @@ export default function Login() {
         </View>
 
         {/* Image placeholder */}
-        <Image 
-            source={require("@/assets/images/index-photo.png")}
-            style={{ width: 400, height: 400, resizeMode: 'contain' }}
-            className="p-3"
-          />
+        <Image
+          source={require("@/assets/images/index-photo.png")}
+          style={{ width: 400, height: 400, resizeMode: "contain" }}
+          className="p-3"
+        />
 
         {/* Text content */}
         <View className="px-4 mt-8">
@@ -44,24 +50,23 @@ export default function Login() {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={() => router.push("/register")}
-        >
+        <TouchableOpacity onPress={() => router.push("/register")}>
           <Text className="text-[#1A1C1E] text-center text-lg font-semibold">
             Sign Up
           </Text>
         </TouchableOpacity>
 
-{/* to usunąć */}
+        {/* to usunąć */}
         <Button
-        title="Tabs"
-        onPress={() => {router.push("/(tabs)");}}
+          title="Tabs"
+          onPress={() => {
+            router.push("/(tabs)");
+          }}
         />
         <Link href="/tinder" className="text-white">
           Tinder
         </Link>
-
-      </View>    
+      </View>
     </View>
   );
 }

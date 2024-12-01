@@ -2,9 +2,10 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from .models import UserHobby
-from .serializers import UserHobbySerializer
+from .models import UserHobby, Hobby
+from .serializers import UserHobbySerializer, HobbyDetailSerializer, UserHobbyListSerializer
 from django.db import transaction
+from django.db.models import Q
 
 class UserHobbyListView(generics.ListAPIView):
     """
@@ -144,3 +145,74 @@ class BulkUpdateHobbyStatusView(generics.UpdateAPIView):
             return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(response_data, status=status.HTTP_200_OK)
+
+class HobbyDetailView(generics.RetrieveAPIView):
+    queryset = Hobby.objects.all()
+    serializer_class = HobbyDetailSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
+class UserHobbiesView(generics.ListAPIView):
+    """
+    Get list of user's hobbies with optional status filtering.
+    
+    Query Parameters:
+    - status: Filter by status (active/favorite/completed)
+    - search: Search hobbies by name
+    - sort: Sort by field (name, started_at, last_activity)
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserHobbyListSerializer
+
+    def get_queryset(self):
+        queryset = UserHobby.objects.filter(user=self.request.user)\
+            .select_related('hobby', 'hobby__category')\
+            .prefetch_related('hobby__tags')
+        
+        # Status filtering
+        status = self.request.query_params.get('status', None)
+        if status:
+            queryset = queryset.filter(status=status)
+            
+        # Search by hobby name
+        search = self.request.query_params.get('search', None)
+        if search:
+            queryset = queryset.filter(
+                Q(hobby__name__icontains=search) | 
+                Q(hobby__description__icontains=search)
+            )
+            
+        # Sorting
+        sort_by = self.request.query_params.get('sort', 'started_at')
+        sort_mapping = {
+            'name': 'hobby__name',
+            'started_at': '-started_at',
+            'last_activity': '-last_activity'
+        }
+        queryset = queryset.order_by(sort_mapping.get(sort_by, '-started_at'))
+        
+        return queryset
+        
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        
+        # Group hobbies by status
+        hobbies_by_status = {
+            'active': [],
+            'favorite': [],
+            'completed': []
+        }
+        
+        for hobby in serializer.data:
+            status = hobby['status']
+            hobbies_by_status[status].append(hobby)
+            
+        return Response({
+            'total_count': queryset.count(),
+            'hobbies': hobbies_by_status
+        })

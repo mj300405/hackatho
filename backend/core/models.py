@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
+from datetime import timedelta
 
 class User(AbstractUser):
     PERSONALITY_CHOICES = [
@@ -70,6 +72,43 @@ class User(AbstractUser):
     
     profile_completed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def can_use_roulette_free(self):
+        """
+        Checks if the user can use the roulette for free based on their last usage.
+        Returns True if enough time has passed since last usage, False otherwise.
+        """
+        settings = SystemSettings.get_settings()
+        cooldown_period = timedelta(hours=settings.roulette_cooldown_hours)
+        
+        # Get the user's latest roulette history
+        latest_spin = self.roulette_history.order_by('-suggested_at').first()
+        
+        if not latest_spin:
+            # If user has never used the roulette, they can use it for free
+            return True
+            
+        # Check if enough time has passed since last usage
+        time_passed = timezone.now() - latest_spin.suggested_at
+        return time_passed >= cooldown_period
+    
+    def get_roulette_cost(self):
+        """
+        Returns the cost in coins to use the roulette before the cooldown period ends.
+        """
+        settings = SystemSettings.get_settings()
+        return settings.roulette_early_price if not self.can_use_roulette_free() else 0
+    
+    def get_next_free_roulette_time(self):
+        """
+        Returns the datetime when the user can next use the roulette for free.
+        """
+        latest_spin = self.roulette_history.order_by('-suggested_at').first()
+        if not latest_spin:
+            return timezone.now()
+            
+        settings = SystemSettings.get_settings()
+        return latest_spin.suggested_at + timedelta(hours=settings.roulette_cooldown_hours)
 
 
 class SystemSettings(models.Model):
