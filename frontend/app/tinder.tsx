@@ -123,7 +123,93 @@ export default function Tinder() {
       })
       .catch((e) => {
         if (e instanceof AxiosError) {
-          console.error(e.response?.data);
+          if (
+            e.response?.data.error ===
+            "Initial recommendations already generated"
+          ) {
+            setCreatingRecomendations(false);
+            fetchRecomendations();
+          } else {
+            console.error(e.response?.data);
+          }
+        }
+      });
+  };
+
+  // Call an endpoint to create recomendations on the server
+  const createRecomendations = () => {
+    console.log("Creating recomendations");
+    authContext.axios
+      .post(
+        `http://${process.env.EXPO_PUBLIC_SERVER_URL}/api/recommendations/initial/${authContext.user?.id}/`,
+      )
+      .then((response: AxiosResponse) => {
+        setCreatingRecomendations(false);
+        fetchRecomendations();
+      })
+      .catch((e) => {
+        if (e instanceof AxiosError) {
+          if (
+            e.response?.data.error ===
+            "Initial recommendations already generated"
+          ) {
+            setCreatingRecomendations(false);
+            fetchRecomendations();
+          } else {
+            console.error(e.response?.data);
+          }
+        }
+      });
+  };
+
+  // Call an endpoint to create recomendations on the server
+  const createRecomendations = () => {
+    console.log("Creating recomendations");
+    authContext.axios
+      .post(
+        `http://${process.env.EXPO_PUBLIC_SERVER_URL}/api/recommendations/initial/${authContext.user?.id}/`,
+      )
+      .then((response: AxiosResponse) => {
+        setCreatingRecomendations(false);
+        fetchRecomendations();
+      })
+      .catch((e) => {
+        if (e instanceof AxiosError) {
+          if (
+            e.response?.data.error ===
+            "Initial recommendations already generated"
+          ) {
+            setCreatingRecomendations(false);
+            fetchRecomendations();
+          } else {
+            console.error(e.response?.data);
+          }
+        }
+      });
+  };
+
+  // Call an endpoint to create recomendations on the server
+  const createRecomendations = () => {
+    console.log("Creating recomendations");
+    authContext.axios
+      .post(
+        `http://${process.env.EXPO_PUBLIC_SERVER_URL}/api/recommendations/initial/${authContext.user?.id}/`,
+      )
+      .then((response: AxiosResponse) => {
+        setCreatingRecomendations(false);
+        fetchRecomendations();
+      })
+      .catch((e) => {
+        if (e instanceof AxiosError) {
+          if (
+            e.response?.data.error ===
+            "Initial recommendations already generated"
+          ) {
+            setCreatingRecomendations(false);
+            fetchRecomendations();
+          } else {
+            console.error(e.response?.data);
+          }
         }
       });
   };
