@@ -8,16 +8,36 @@ class HobbyRecommendationService:
         openai.api_key = settings.OPENAI_API_KEY
 
     def _create_prompt(self, user) -> str:
-        return f"""Based on the following user profile, suggest 10 hobbies (6 best matches, 2 medium matches, 2 challenging matches).
+        # Get personality details if they exist
+        personality_details = user.personality_details if user.personality_details else {}
+        
+        return f"""Based on the following detailed user profile, suggest 10 hobbies (6 best matches, 2 medium matches, 2 challenging matches).
+        
         User Profile:
-        - Personality: {user.personality_type}
-        - Available time: {user.available_time} minutes per day
-        - Budget: {user.budget_preference}
+        Required Information:
         - Age: {user.age}
-
+        - Location: {user.location}
+        - Personality Type: {user.personality_type}
+        - Available Time: {user.available_time} minutes per day
+        - Budget Preference: {user.budget_preference}
+        - Current Experience Points: {user.exp}
+        
+        Additional Information:
+        - Personality Details: {json.dumps(personality_details, indent=2)}
+        - Account Creation Date: {user.created_at.strftime('%Y-%m-%d')}
+        
+        Please consider all these factors, especially:
+        - Location-specific opportunities and limitations
+        - Age-appropriate activities
+        - Time commitments that fit within their daily available time
+        - Activities within their budget preference
+        - Hobbies that match their personality type characteristics
+        - Their current experience level (based on exp points)
+        - Any specific traits or preferences from their personality details
+        
         Respond with a JSON object containing a 'recommendations' array. Each hobby in the array should have:
         - name: The hobby name
-        - description: A detailed description
+        - description: A detailed description that explains why it matches their profile
         - difficulty_level: One of [BEGINNER, INTERMEDIATE, ADVANCED]
         - time_commitment: Required minutes per day
         - price_range: Estimated cost range (format: "$X-$Y")
@@ -25,13 +45,15 @@ class HobbyRecommendationService:
         - minimum_age: Minimum recommended age
         - category_name: General category of the hobby
         - match_level: One of [BEST, MEDIUM, CHALLENGING]
+        - location_suitable: Boolean indicating if the hobby is suitable for their location
+        - personality_match: Brief explanation of why it matches their personality type
 
         The response should be in this format:
         {
             "recommendations": [
                 {
                     "name": "Hobby Name",
-                    "description": "Description",
+                    "description": "Description with personalized reasoning",
                     ...
                 }
             ]
@@ -40,7 +62,7 @@ class HobbyRecommendationService:
     def get_recommendations(self, user) -> List[Dict]:
         try:
             response = openai.ChatCompletion.create(
-                model="gpt-4",
+                model="gpt-4o",
                 response_format={ "type": "json_object" },
                 messages=[{
                     "role": "system",

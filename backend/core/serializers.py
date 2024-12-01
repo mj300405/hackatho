@@ -29,9 +29,16 @@ class RegisterSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
+        # Create the user
         user = User.objects.create_user(**validated_data)
-        user.profile_completed = False
+        
+        # Check if profile is complete
+        incomplete_fields = get_incomplete_fields(user)
+        user.profile_completed = not bool(incomplete_fields)
+        
+        # Save the user with updated profile_completed status
         user.save()
+        
         return user
 
 class UserSerializer(serializers.ModelSerializer):
