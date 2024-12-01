@@ -39,3 +39,28 @@ export type HobbyType = {
   minimum_age: number;
   match_level: string;
 };
+
+export type UserHobby = {
+  days_active: number;
+  hobby: {
+    category: {
+      description: string;
+      id: number;
+      name: string;
+    };
+    description: string;
+    difficulty_level: string;
+    id: number;
+    minimum_age: number;
+    name: string;
+    price_range: string;
+    required_equipment: string[];
+    time_commitment: number;
+  };
+  id: number;
+  last_activity: string;
+  notes: string;
+  rating: null;
+  started_at: string;
+  status: string;
+};
