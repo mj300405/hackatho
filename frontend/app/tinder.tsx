@@ -114,8 +114,7 @@ export default function Tinder() {
                 }}
               >
                 <TinderCardWrapper key={index}>
-                  {card.name} {card.difficulty_level}{" "}
-                  {card.minimum_age.toString()}
+                  <Text className="text-2xl font-bold">{card.name}</Text>
                 </TinderCardWrapper>
               </TinderCard>
             );

@@ -29,7 +29,7 @@ export default function Home() {
       <ScrollView>
         {activeHobbies.map((userHobby) => {
           console.log(userHobby);
-          return <Card hobby={userHobby} />;
+          return <Card hobby={userHobby} key={userHobby.id} />;
         })}
       </ScrollView>
     </View>
