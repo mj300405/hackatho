@@ -14,7 +14,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+        tabBarActiveTintColor: Colors["light"].tint,
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
@@ -72,6 +72,7 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen name="details/[hobbyId]" options={{ href: null }} />
     </Tabs>
   );
 }
