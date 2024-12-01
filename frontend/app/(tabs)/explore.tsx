@@ -12,6 +12,7 @@ export default function Explore() {
     axios
       .get(`/api/recommendations/explore/`)
       .then((res) => {
+        console.log(res.data);
         setHobbies(res.data);
       })
       .catch((err) => {

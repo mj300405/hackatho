@@ -2,10 +2,10 @@ import { View, Text } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { LinearGradient } from "expo-linear-gradient";
 
-import type { Hobby } from "@/lib/types";
+import type { HobbyType } from "@/lib/types";
 import { router } from "expo-router";
 
-export default function HobbyCard({ hobby }: { hobby: Hobby }) {
+export default function HobbyCard({ hobby }: { hobby: HobbyType }) {
   console.log(hobby);
   const tap = Gesture.Tap()
     .numberOfTaps(1)

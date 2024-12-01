@@ -12,6 +12,20 @@ export type User = {
   exp: number;
 };
 
+export type HobbyRouletteResponse = {
+  coins_spent: number;
+  history: {
+    coins_spent: number;
+    hobby: HobbyType;
+    id: number;
+    suggested_at: string;
+    was_accepted: boolean;
+  };
+  message: string;
+  recommendation: HobbyType;
+  remaining_coins: number;
+};
+
 export type Direction = "left" | "right" | "up" | "down";
 
 export type HobbyType = {
