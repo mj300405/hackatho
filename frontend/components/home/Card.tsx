@@ -1,6 +1,7 @@
 import { UserHobby } from "@/lib/types";
 import React from "react";
-import { View, Text } from "react-native";
+import { View, Text, Pressable } from "react-native";
+import { router } from "expo-router";
 
 type CardProps = {
   hobby: UserHobby;
@@ -8,7 +9,12 @@ type CardProps = {
 
 export default function Card(props: CardProps) {
   return (
-    <View className="bg-white p-4 rounded-lg shadow-md w-full mb-4">
+    <Pressable
+      className="bg-white p-4 rounded-lg shadow-md w-full mb-4"
+      onPress={() => {
+        router.push(`/hobby/${props.hobby.hobby.id}`);
+      }}
+    >
       <Text className="text-lg font-bold text-gray-800">
         {props.hobby.hobby.name}
       </Text>
@@ -43,6 +49,6 @@ export default function Card(props: CardProps) {
           {new Date(props.hobby.last_activity).toLocaleDateString()}
         </Text>
       </View>
-    </View>
+    </Pressable>
   );
 }
