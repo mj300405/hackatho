@@ -6,14 +6,14 @@ import type { Hobby } from "@/lib/types";
 import { router } from "expo-router";
 
 export default function HobbyCard({ hobby }: { hobby: Hobby }) {
+  console.log(hobby);
   const tap = Gesture.Tap()
     .numberOfTaps(1)
     .maxDuration(250)
     .runOnJS(true)
     .onEnd(() => {
       // TODO: Navigate to the details screen
-      router.push("./explore/details");
-      console.log("Tapped");
+      router.push(`/(tabs)/details/${hobby.id}`);
     });
 
   return (
