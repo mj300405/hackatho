@@ -10,6 +10,7 @@
   - [List User Hobbies](#list-user-hobbies)
   - [Get Hobby Details](#get-hobby-details)
   - [Update Hobby Status](#update-hobby-status)
+  - [Bulk Update Hobby Status](#bulk-update-hobby-status)
 - [Recommendations](#recommendations)
   - [Initial Recommendations](#initial-recommendations)
 - [Important Notes](#important-notes)
@@ -236,6 +237,79 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
 }
 ```
 
+### Bulk Update Hobby Status
+
+**Endpoint:** `PATCH /api/hobbies/status/`
+
+**Headers:**
+```
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
+```
+
+**Request Body:**
+```json
+[
+    {
+        "hobby_id": 1,
+        "status": "favorite"
+    },
+    {
+        "hobby_id": 2,
+        "status": "completed"
+    },
+    {
+        "hobby_id": 3,
+        "status": "active"
+    }
+]
+```
+
+**Success Response (200 OK):**
+```json
+{
+    "updated": [
+        {
+            "id": 1,
+            "hobby": {
+                "id": 1,
+                "name": "Urban Sketching",
+                "description": "A creative hobby involving drawing city scenes...",
+                "difficulty_level": "BEGINNER",
+                "time_commitment": 30,
+                "price_range": "$20-$50",
+                "required_equipment": ["sketchbook", "pencils", "pens"],
+                "minimum_age": 12
+            },
+            "status": "favorite",
+            "progress": 0,
+            "started_at": "2024-11-30T16:36:07Z",
+            "last_activity": "2024-11-30T16:36:07Z"
+        }
+    ],
+    "errors": null
+}
+```
+
+**Error Response (400 Bad Request):**
+```json
+{
+    "updated": [],
+    "errors": [
+        {
+            "error": "Hobby not found",
+            "hobby_id": 999
+        },
+        {
+            "error": "Invalid status. Must be one of: active, favorite, completed",
+            "item": {
+                "hobby_id": 2,
+                "status": "invalid_status"
+            }
+        }
+    ]
+}
+```
+
 ## Recommendations
 
 ### Initial Recommendations
@@ -293,6 +367,11 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
 - active: Currently pursuing
 - favorite: Marked as favorite
 - completed: Finished or mastered
+
+### Status Update Methods
+- Single hobby update: Use when updating one hobby at a time with detailed information (notes, rating)
+- Bulk update: Use when changing status for multiple hobbies simultaneously
+- Both methods support the same status types: active, favorite, completed
 
 ### Error Responses
 
