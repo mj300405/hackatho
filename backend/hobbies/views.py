@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import UserHobby
 from .serializers import UserHobbySerializer
+from django.db import transaction
 
 class UserHobbyListView(generics.ListAPIView):
     """
@@ -78,3 +79,68 @@ class UpdateHobbyStatusView(generics.UpdateAPIView):
         self.perform_update(serializer)
 
         return Response(serializer.data)
+
+class BulkUpdateHobbyStatusView(generics.UpdateAPIView):
+    """
+    Update status for multiple hobbies at once.
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserHobbySerializer
+
+    @transaction.atomic
+    def patch(self, request, *args, **kwargs):
+        if not isinstance(request.data, list):
+            return Response(
+                {"error": "Request data must be a list of hobby status updates"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        results = []
+        errors = []
+
+        for item in request.data:
+            if not isinstance(item, dict) or 'hobby_id' not in item or 'status' not in item:
+                errors.append({
+                    "error": "Each item must contain hobby_id and status",
+                    "item": item
+                })
+                continue
+
+            if item['status'] not in ['active', 'favorite', 'completed']:
+                errors.append({
+                    "error": "Invalid status. Must be one of: active, favorite, completed",
+                    "item": item
+                })
+                continue
+
+            try:
+                hobby = UserHobby.objects.get(
+                    user=request.user,
+                    hobby_id=item['hobby_id']
+                )
+                serializer = self.get_serializer(hobby, data={'status': item['status']}, partial=True)
+                if serializer.is_valid():
+                    serializer.save()
+                    results.append(serializer.data)
+                else:
+                    errors.append({
+                        "error": "Validation failed",
+                        "hobby_id": item['hobby_id'],
+                        "details": serializer.errors
+                    })
+            except UserHobby.DoesNotExist:
+                errors.append({
+                    "error": "Hobby not found",
+                    "hobby_id": item['hobby_id']
+                })
+
+        response_data = {
+            "updated": results,
+            "errors": errors if errors else None
+        }
+
+        # If there were only errors and no successful updates, return 400
+        if not results and errors:
+            return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(response_data, status=status.HTTP_200_OK)
