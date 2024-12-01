@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import { axiosContext, AxiosContextType } from "@/lib/axios";
 import { HobbyType, UserHobby } from "@/lib/types";
 
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, ScrollView } from "react-native";
 import { AxiosError, AxiosResponse } from "axios";
 import Card from "@/components/home/Card";
 
@@ -23,14 +23,15 @@ export default function Home() {
         }
       });
   }, []);
-
   return (
     <View>
-      <ThemedText>Home</ThemedText>
-      {activeHobbies.map((userHobby) => {
-        console.log(userHobby);
-        return <Card hobby={userHobby} />;
-      })}
+      <Text className="text-center font-bold text-3xl mx-5 px-5">HOME</Text>
+      <ScrollView>
+        {activeHobbies.map((userHobby) => {
+          console.log(userHobby);
+          return <Card hobby={userHobby} />;
+        })}
+      </ScrollView>
     </View>
   );
 }

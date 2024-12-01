@@ -73,6 +73,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen name="details/[hobbyId]" options={{ href: null }} />
+      <Tabs.Screen name="hobby/[hobbyId]" options={{ href: null }} />
     </Tabs>
   );
 }

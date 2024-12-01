@@ -79,7 +79,7 @@ class User(AbstractUser):
         Returns True if enough time has passed since last usage, False otherwise.
         """
         settings = SystemSettings.get_settings()
-        cooldown_period = timedelta(hours=settings.roulette_cooldown_hours)
+        cooldown_period = timedelta(seconds=settings.roulette_cooldown_hours)
         
         # Get the user's latest roulette history
         latest_spin = self.roulette_history.order_by('-suggested_at').first()
