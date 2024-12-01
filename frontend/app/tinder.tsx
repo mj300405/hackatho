@@ -129,12 +129,12 @@ export default function Tinder() {
       console.log("All cards swiped.");
       const data = selectedCards.map((card) => {
         return {
-          id: card,
+          hobby_id: card,
           status: "favorite",
         };
       });
       authContext.axios
-        .patch("/api/hobbies/status/", data)
+        .patch("/api/hobbies/hobbies/status/", data)
         .then((response: AxiosResponse) => {
           console.log(response.data);
         })
