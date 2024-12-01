@@ -91,6 +91,7 @@ export function AxiosProvider({ children }: { children: ReactNode }) {
   );
 
   if (user === null && token !== null) {
+    refreshUser();
   }
   return (
     <axiosContext.Provider

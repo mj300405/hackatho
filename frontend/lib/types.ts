@@ -11,3 +11,17 @@ export type User = {
   coins: number;
   exp: number;
 };
+
+export type Direction = "left" | "right" | "up" | "down";
+
+export type HobbyType = {
+  id: number;
+  name: string;
+  description: string;
+  difficulty_level: string;
+  time_commitment: number;
+  price_range: string;
+  required_equipment: string[];
+  minimum_age: number;
+  match_level: string;
+};
