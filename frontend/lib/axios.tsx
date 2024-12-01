@@ -6,6 +6,7 @@ import axios, {
 } from "axios";
 import { createContext, ReactNode, useState } from "react";
 import { type User } from "./types";
+import { router } from "expo-router";
 
 export type AxiosContextType = {
   axios: AxiosInstance;
@@ -92,6 +93,9 @@ export function AxiosProvider({ children }: { children: ReactNode }) {
 
   if (user === null && token !== null) {
     refreshUser();
+  }
+  if (user !== null && user.profile_completed === false) {
+    router.navigate("/tinder");
   }
   return (
     <axiosContext.Provider
