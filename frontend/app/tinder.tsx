@@ -9,25 +9,18 @@ import { HobbyType, Direction } from "@/lib/types";
 export default function Tinder() {
   const authContext = useContext(axiosContext) as AxiosContextType;
 
+  const [creatingRecomendations, setCreatingRecomendations] =
+    useState<boolean>(true);
+
   // TODO: Uncomment this code to fetch recommendations from the server
 
   const [cards, setCards] = useState<
     (HobbyType & { direction: Direction | null })[]
   >([]);
 
-  useEffect(() => {
-    // Call an endpoint to create recomendations on the server
-    authContext.axios
-      .post(
-        `http://${process.env.EXPO_PUBLIC_SERVER_URL}/api/recommendations/initial/${authContext.user?.id}/`,
-      )
-      .catch((e) => {
-        if (e instanceof AxiosError) {
-          console.error(e.response?.data);
-        }
-      });
-
-    // Retriev created recomendations from the server
+  // Retriev created recomendations from the server
+  const fetchRecomendations = () => {
+    console.log("Fetching recomendations");
     authContext.axios
       .get(
         `http://${process.env.EXPO_PUBLIC_SERVER_URL}/api/recommendations/initial/${authContext.user?.id}/`,
@@ -46,6 +39,30 @@ export default function Tinder() {
           console.error(e.response?.data);
         }
       });
+  };
+
+  // Call an endpoint to create recomendations on the server
+  const createRecomendations = () => {
+    console.log("Creating recomendations");
+    authContext.axios
+      .post(
+        `http://${process.env.EXPO_PUBLIC_SERVER_URL}/api/recommendations/initial/${authContext.user?.id}/`,
+      )
+      .then((response: AxiosResponse) => {
+        setCreatingRecomendations(false);
+        fetchRecomendations();
+      })
+      .catch((e) => {
+        if (e instanceof AxiosError) {
+          console.error(e.response?.data);
+        }
+      });
+  };
+
+  useEffect(() => {
+    (async () => {
+      createRecomendations();
+    })();
   }, []);
 
   const handleSwipe = (direction: Direction, id: number) => {
@@ -74,22 +91,24 @@ export default function Tinder() {
     <View className="h-screen flex flex-col items-center bg-white w-screen">
       <Text>Tinder🔥</Text>
       <View className="h-full w-96 flex flex-col justify-center items-center bg-white">
-        {cards.map((card, index) => {
-          return (
-            <TinderCard
-              key={card.id}
-              preventSwipe={["up", "down"]}
-              onSwipe={(dir) => {
-                handleSwipe(dir, card.id);
-              }}
-            >
-              <TinderCardWrapper key={index}>
-                {card.name} {card.difficulty_level}{" "}
-                {card.minimum_age.toString()}
-              </TinderCardWrapper>
-            </TinderCard>
-          );
-        })}
+        {creatingRecomendations && <Text>Creating recomendations...</Text>}
+        {creatingRecomendations === false &&
+          cards.map((card, index) => {
+            return (
+              <TinderCard
+                key={card.id}
+                preventSwipe={["up", "down"]}
+                onSwipe={(dir) => {
+                  handleSwipe(dir, card.id);
+                }}
+              >
+                <TinderCardWrapper key={index}>
+                  {card.name} {card.difficulty_level}{" "}
+                  {card.minimum_age.toString()}
+                </TinderCardWrapper>
+              </TinderCard>
+            );
+          })}
       </View>
     </View>
   );
