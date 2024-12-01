@@ -1,4 +1,6 @@
 ![](hobbyverse.gif)
+
+[Presentation](https://www.canva.com/design/DAGX9Ke8SYk/srTp-pZI0YspeTDEfFGFOQ/edit?utm_content=DAGX9Ke8SYk&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
 # Hobbyverse 🧬
 
 **Hobbyverse** is an innovative mobile application that helps users discover and explore new hobbies through personalized recommendations, social connections, and gamified experiences. The app uses a unique DNA-inspired system to match users with activities that align with their personalities and interests.
