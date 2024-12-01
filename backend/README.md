@@ -13,6 +13,8 @@
   - [Bulk Update Hobby Status](#bulk-update-hobby-status)
 - [Recommendations](#recommendations)
   - [Initial Recommendations](#initial-recommendations)
+  - [Hobby Roulette](#hobby-roulette)
+- [Models](#models)
 - [Important Notes](#important-notes)
 
 ## Authentication
@@ -177,22 +179,33 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
 ```json
 {
     "id": 1,
-    "hobby": {
+    "name": "Urban Sketching",
+    "description": "A creative hobby involving drawing city scenes...",
+    "category": {
         "id": 1,
-        "name": "Urban Sketching",
-        "description": "A creative hobby involving drawing city scenes...",
-        "difficulty_level": "BEGINNER",
-        "time_commitment": 30,
-        "price_range": "$20-$50",
-        "required_equipment": ["sketchbook", "pencils", "pens"],
-        "minimum_age": 12
+        "name": "Arts",
+        "description": "Creative activities and artistic pursuits"
     },
-    "status": "active",
-    "notes": "Really enjoying this!",
-    "resources_links": [],
-    "started_at": "2024-11-30T16:36:07Z",
-    "last_activity": "2024-11-30T16:36:07Z",
-    "rating": 5
+    "difficulty_level": "BEGINNER",
+    "time_commitment": 30,
+    "price_range": "$20-$50",
+    "required_equipment": ["sketchbook", "pencils", "pens"],
+    "minimum_age": 12,
+    "notes": "",
+    "tags": [
+        {
+            "id": 1,
+            "name": "creative"
+        },
+        {
+            "id": 2,
+            "name": "outdoor"
+        }
+    ],
+    "user_status": "active",
+    "user_notes": "Really enjoying this!",
+    "user_rating": 5,
+    "created_at": "2024-11-30T16:36:07Z"
 }
 ```
 
@@ -281,32 +294,14 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
                 "minimum_age": 12
             },
             "status": "favorite",
-            "progress": 0,
+            "notes": "Really enjoying this hobby!",
+            "resources_links": [],
             "started_at": "2024-11-30T16:36:07Z",
-            "last_activity": "2024-11-30T16:36:07Z"
+            "last_activity": "2024-11-30T16:36:07Z",
+            "rating": null
         }
     ],
     "errors": null
-}
-```
-
-**Error Response (400 Bad Request):**
-```json
-{
-    "updated": [],
-    "errors": [
-        {
-            "error": "Hobby not found",
-            "hobby_id": 999
-        },
-        {
-            "error": "Invalid status. Must be one of: active, favorite, completed",
-            "item": {
-                "hobby_id": 2,
-                "status": "invalid_status"
-            }
-        }
-    ]
 }
 ```
 
@@ -341,6 +336,79 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
 }
 ```
 
+### Hobby Roulette
+
+**Endpoint:** `POST /api/recommendations/roulette/`
+
+**Description:** Generates a completely random hobby suggestion. Uses the roulette system which may require coins for non-free spins.
+
+**Headers:**
+```
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
+```
+
+**Success Response (200 OK):**
+```json
+{
+    "message": "Random hobby generated successfully",
+    "history": {
+        "id": 1,
+        "hobby": {
+            "id": 123,
+            "name": "String",
+            "description": "String",
+            "difficulty_level": "BEGINNER|INTERMEDIATE|ADVANCED",
+            "time_commitment": 30,
+            "price_range": "$0-$50",
+            "required_equipment": ["item1", "item2"],
+            "minimum_age": 13,
+            "category_name": "String"
+        },
+        "suggested_at": "2024-12-01T12:00:00Z",
+        "was_accepted": false,
+        "coins_spent": 50
+    },
+    "coins_spent": 50,
+    "remaining_coins": 450
+}
+```
+
+## Models
+
+### Hobby
+- `id`: Integer
+- `name`: String
+- `description`: Text
+- `category`: ForeignKey to Category
+- `difficulty_level`: String (BEGINNER, INTERMEDIATE, ADVANCED)
+- `time_commitment`: Integer (minutes per day)
+- `price_range`: String
+- `required_equipment`: JSONField (list)
+- `minimum_age`: Integer
+- `notes`: Text
+- `tags`: ManyToMany to Tag
+- `created_at`: DateTime
+
+### UserHobby
+- `id`: Integer
+- `user`: ForeignKey to User
+- `hobby`: ForeignKey to Hobby
+- `status`: String (active, favorite, completed)
+- `notes`: Text
+- `resources_links`: JSONField (list)
+- `started_at`: DateTime
+- `last_activity`: DateTime
+- `rating`: Integer (1-5)
+
+### Category
+- `id`: Integer
+- `name`: String
+- `description`: Text
+
+### Tag
+- `id`: Integer
+- `name`: String
+
 ## Important Notes
 
 ### Authentication
@@ -372,6 +440,13 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
 - Single hobby update: Use when updating one hobby at a time with detailed information (notes, rating)
 - Bulk update: Use when changing status for multiple hobbies simultaneously
 - Both methods support the same status types: active, favorite, completed
+
+### Roulette System
+- One free spin every 24 hours
+- Non-free spins cost coins (amount based on system settings)
+- Profile must be complete to use this feature
+- Generated hobby is automatically saved to user's history
+- The `was_accepted` field starts as `false` and can be updated later
 
 ### Error Responses
 
