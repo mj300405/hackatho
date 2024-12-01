@@ -15,6 +15,7 @@ import { Picker } from "@react-native-picker/picker";
 import InputLabel from "@/components/forms/InputLabel";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "expo-router";
+import { router } from "expo-router";
 
 export default function Register() {
   // Use state to store the values of the input fields
@@ -64,6 +65,7 @@ export default function Register() {
       )
       .then((response) => {
         console.log(response);
+        router.navigate("/login");
       })
       .catch((error) => {
         // The response has validation errors.One key represents one form field. Each field has an array of errors.

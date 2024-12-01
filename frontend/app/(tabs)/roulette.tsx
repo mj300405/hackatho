@@ -126,7 +126,7 @@ export default function App() {
         <Button
           title="Check out your new hobby!"
           onPress={() => {
-            router.push(`/(tabs)/details/${hobby?.recommendation.id}`);
+            router.push(`/(tabs)/hobby/${hobby?.recommendation.id}`);
           }}
         />
       )}

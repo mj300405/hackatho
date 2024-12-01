@@ -13,7 +13,7 @@ export default function HobbyCard({ hobby }: { hobby: HobbyType }) {
     .runOnJS(true)
     .onEnd(() => {
       // TODO: Navigate to the details screen
-      router.push(`/(tabs)/details/${hobby.id}`);
+      router.push(`/(tabs)/hobby/${hobby.id}`);
     });
 
   return (

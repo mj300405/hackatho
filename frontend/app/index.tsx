@@ -57,12 +57,12 @@ export default function Login() {
         </TouchableOpacity>
 
         {/* to usunąć */}
-        <Button
+        {/* <Button
           title="Tabs"
           onPress={() => {
             router.push("/(tabs)");
           }}
-        />
+        /> */}
         <Link href="/tinder" className="text-white">
           Tinder
         </Link>

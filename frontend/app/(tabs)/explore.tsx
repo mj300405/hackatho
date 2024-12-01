@@ -3,9 +3,10 @@ import HobbyCard from "@/components/ui/HobbyCard";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useLayoutEffect, useState, useContext } from "react";
 import { axiosContext, AxiosContextType } from "@/lib/axios";
+import type { HobbyType } from "@/lib/types";
 
 export default function Explore() {
-  const [hobbies, setHobbies] = useState([]);
+  const [hobbies, setHobbies] = useState<HobbyType[]>([]);
   const { axios } = useContext(axiosContext) as AxiosContextType;
 
   useLayoutEffect(() => {
@@ -13,7 +14,7 @@ export default function Explore() {
       .get(`/api/recommendations/explore/`)
       .then((res) => {
         console.log(res.data);
-        setHobbies(res.data);
+        setHobbies(res.data.recommendations as HobbyType[]);
       })
       .catch((err) => {
         console.error(err);
@@ -29,8 +30,8 @@ export default function Explore() {
           alignItems: "center",
         }}
       >
-        {hobbies.map((hobby, i) => (
-          <HobbyCard key={i} hobby={hobby} />
+        {hobbies.map((hobby) => (
+          <HobbyCard key={hobby.id} hobby={hobby} />
         ))}
       </ScrollView>
     </GestureHandlerRootView>
