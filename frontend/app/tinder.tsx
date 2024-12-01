@@ -4,83 +4,49 @@ import { AxiosError, AxiosResponse } from "axios";
 import { useContext, useEffect, useState } from "react";
 import { View, Text } from "react-native";
 import TinderCard from "react-tinder-card";
+import { HobbyType, Direction } from "@/lib/types";
 
 export default function Tinder() {
   const authContext = useContext(axiosContext) as AxiosContextType;
 
   // TODO: Uncomment this code to fetch recommendations from the server
-  // authContext.axios
-  //   .post(
-  //     `http://${process.env.EXPO_PUBLIC_SERVER_URL}/api/recommendations/initial/${authContext.user?.id}/`,
-  //   )
-  //   .then((response: AxiosResponse) => {
-  //     console.log(response.data);
-  //   })
-  //   .catch((e) => {
-  //     if (e instanceof AxiosError) {
-  //       console.error(e.response?.data);
-  //     }
-  //   });
 
-  // TODO: move to types
-  type HobbyType = {
-    id: number;
-    name: string;
-    description: string;
-    difficulty_level: string;
-    time_commitment: number;
-    price_range: string;
-    required_equipment: string[];
-    minimum_age: number;
-    match_level: string;
-  };
+  const [cards, setCards] = useState<
+    (HobbyType & { direction: Direction | null })[]
+  >([]);
 
-  // TODO: move to types
-  type Direction = "left" | "right" | "up" | "down";
+  useEffect(() => {
+    // Call an endpoint to create recomendations on the server
+    authContext.axios
+      .post(
+        `http://${process.env.EXPO_PUBLIC_SERVER_URL}/api/recommendations/initial/${authContext.user?.id}/`,
+      )
+      .catch((e) => {
+        if (e instanceof AxiosError) {
+          console.error(e.response?.data);
+        }
+      });
 
-  // TODO: remove after a mock
-  const cardsMock: (HobbyType & {
-    direction: Direction | null;
-  })[] = [
-    {
-      id: 1,
-      name: "Swim",
-      description: "Swim in the pool",
-      difficulty_level: "asdasd",
-      time_commitment: 1,
-      price_range: "asdasd",
-      required_equipment: ["asdasd"],
-      minimum_age: 1,
-      match_level: "asdasd",
-      direction: null,
-    },
-    {
-      id: 2,
-      name: "Bike",
-      description: "Bike in the park",
-      difficulty_level: "asdasd",
-      time_commitment: 1,
-      price_range: "asdasd",
-      required_equipment: ["asdasd"],
-      minimum_age: 1,
-      match_level: "asdasd",
-      direction: null,
-    },
-    {
-      id: 3,
-      name: "Hiking",
-      description: "Hiking into the mountain",
-      difficulty_level: "asdasd",
-      time_commitment: 1,
-      price_range: "asdasd",
-      required_equipment: ["asdasd"],
-      minimum_age: 1,
-      match_level: "asdas",
-      direction: null,
-    },
-  ];
-
-  const [cards, setCards] = useState(cardsMock);
+    // Retriev created recomendations from the server
+    authContext.axios
+      .get(
+        `http://${process.env.EXPO_PUBLIC_SERVER_URL}/api/recommendations/initial/${authContext.user?.id}/`,
+      )
+      .then((response: AxiosResponse) => {
+        // Adding direction property to Hobby object.
+        const cardsWithDir = response.data.recommendations.map(
+          (hobby: HobbyType) => {
+            return { ...hobby, direction: null };
+          },
+        );
+        setCards(cardsWithDir);
+      })
+      .catch((e) => {
+        if (e instanceof AxiosError) {
+          console.error(e.response?.data);
+        }
+      });
+  }, []);
 
   const handleSwipe = (direction: Direction, id: number) => {
     const newCards = [...cards];
@@ -90,6 +56,7 @@ export default function Tinder() {
   };
 
   useEffect(() => {
+    if (cards.length === 0) return;
     let allSwiped = true;
     cards.forEach((card) => {
       if (card.direction === null) {
@@ -99,6 +66,7 @@ export default function Tinder() {
     if (allSwiped) {
       console.log("All cards swiped.");
       // TODO: upload swiped cards somewhere and redirect somewhere
+      // tylko id
     }
   }, [cards]);
 
@@ -115,7 +83,10 @@ export default function Tinder() {
                 handleSwipe(dir, card.id);
               }}
             >
-              <TinderCardWrapper key={index}>{card.name}</TinderCardWrapper>
+              <TinderCardWrapper key={index}>
+                {card.name} {card.difficulty_level}{" "}
+                {card.minimum_age.toString()}
+              </TinderCardWrapper>
             </TinderCard>
           );
         })}
