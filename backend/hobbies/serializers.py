@@ -112,3 +112,28 @@ class HobbyDetailSerializer(serializers.ModelSerializer):
             ).first()
             return user_hobby.notes if user_hobby else None
         return None
+
+
+class UserHobbyListSerializer(serializers.ModelSerializer):
+    hobby = HobbySerializer(read_only=True)
+    days_active = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = UserHobby
+        fields = (
+            'id',
+            'hobby',
+            'status',
+            'notes',
+            'started_at',
+            'last_activity',
+            'rating',
+            'days_active'
+        )
+        
+    def get_days_active(self, obj):
+        if obj.started_at:
+            from django.utils import timezone
+            delta = timezone.now() - obj.started_at
+            return delta.days
+        return 0

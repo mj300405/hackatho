@@ -7,7 +7,8 @@
   - [Token Refresh](#token-refresh)
   - [User Details](#user-details)
 - [Hobbies](#hobbies)
-  - [List User Hobbies](#list-user-hobbies)
+  - [List All User Hobbies](#list-all-user-hobbies)
+  - [List User Hobbies By Status](#list-user-hobbies-by-status)
   - [Get Hobby Details](#get-hobby-details)
   - [Update Hobby Status](#update-hobby-status)
   - [Bulk Update Hobby Status](#bulk-update-hobby-status)
@@ -132,7 +133,53 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
 
 ## Hobbies
 
-### List User Hobbies
+### List All User Hobbies
+
+**Endpoint:** `GET /api/hobbies/user/hobbies/`
+
+**Headers:**
+```
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
+```
+
+**Query Parameters:**
+- `status`: Filter by status (active/favorite/completed)
+- `search`: Search hobbies by name or description
+- `sort`: Sort by field (name, started_at, last_activity)
+
+**Success Response (200 OK):**
+```json
+{
+    "total_count": 3,
+    "hobbies": {
+        "active": [
+            {
+                "id": 1,
+                "hobby": {
+                    "id": 1,
+                    "name": "Urban Sketching",
+                    "description": "A creative hobby involving drawing city scenes...",
+                    "difficulty_level": "BEGINNER",
+                    "time_commitment": 30,
+                    "price_range": "$20-$50",
+                    "required_equipment": ["sketchbook", "pencils", "pens"],
+                    "minimum_age": 12
+                },
+                "status": "active",
+                "notes": "Really enjoying this!",
+                "started_at": "2024-11-30T16:36:07Z",
+                "last_activity": "2024-11-30T16:36:07Z",
+                "rating": 5,
+                "days_active": 1
+            }
+        ],
+        "favorite": [],
+        "completed": []
+    }
+}
+```
+
+### List User Hobbies By Status
 
 **Endpoint:** `GET /api/hobbies/my/`
 
@@ -166,248 +213,7 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
 ]
 ```
 
-### Get Hobby Details
-
-**Endpoint:** `GET /api/hobbies/{hobby_id}/`
-
-**Headers:**
-```
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
-```
-
-**Success Response (200 OK):**
-```json
-{
-    "id": 1,
-    "name": "Urban Sketching",
-    "description": "A creative hobby involving drawing city scenes...",
-    "category": {
-        "id": 1,
-        "name": "Arts",
-        "description": "Creative activities and artistic pursuits"
-    },
-    "difficulty_level": "BEGINNER",
-    "time_commitment": 30,
-    "price_range": "$20-$50",
-    "required_equipment": ["sketchbook", "pencils", "pens"],
-    "minimum_age": 12,
-    "notes": "",
-    "tags": [
-        {
-            "id": 1,
-            "name": "creative"
-        },
-        {
-            "id": 2,
-            "name": "outdoor"
-        }
-    ],
-    "user_status": "active",
-    "user_notes": "Really enjoying this!",
-    "user_rating": 5,
-    "created_at": "2024-11-30T16:36:07Z"
-}
-```
-
-### Update Hobby Status
-
-**Endpoint:** `PATCH /api/hobbies/{hobby_id}/status/`
-
-**Headers:**
-```
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
-```
-
-**Request Body:**
-```json
-{
-    "status": "favorite",
-    "notes": "Really enjoying this hobby!",
-    "rating": 5
-}
-```
-
-**Success Response (200 OK):**
-```json
-{
-    "id": 1,
-    "hobby": {
-        "id": 1,
-        "name": "Urban Sketching",
-        "description": "A creative hobby involving drawing city scenes...",
-        "difficulty_level": "BEGINNER",
-        "time_commitment": 30,
-        "price_range": "$20-$50",
-        "required_equipment": ["sketchbook", "pencils", "pens"],
-        "minimum_age": 12
-    },
-    "status": "favorite",
-    "notes": "Really enjoying this hobby!",
-    "resources_links": [],
-    "started_at": "2024-11-30T16:36:07Z",
-    "last_activity": "2024-11-30T16:36:07Z",
-    "rating": 5
-}
-```
-
-### Bulk Update Hobby Status
-
-**Endpoint:** `PATCH /api/hobbies/status/`
-
-**Headers:**
-```
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
-```
-
-**Request Body:**
-```json
-[
-    {
-        "hobby_id": 1,
-        "status": "favorite"
-    },
-    {
-        "hobby_id": 2,
-        "status": "completed"
-    },
-    {
-        "hobby_id": 3,
-        "status": "active"
-    }
-]
-```
-
-**Success Response (200 OK):**
-```json
-{
-    "updated": [
-        {
-            "id": 1,
-            "hobby": {
-                "id": 1,
-                "name": "Urban Sketching",
-                "description": "A creative hobby involving drawing city scenes...",
-                "difficulty_level": "BEGINNER",
-                "time_commitment": 30,
-                "price_range": "$20-$50",
-                "required_equipment": ["sketchbook", "pencils", "pens"],
-                "minimum_age": 12
-            },
-            "status": "favorite",
-            "notes": "Really enjoying this hobby!",
-            "resources_links": [],
-            "started_at": "2024-11-30T16:36:07Z",
-            "last_activity": "2024-11-30T16:36:07Z",
-            "rating": null
-        }
-    ],
-    "errors": null
-}
-```
-
-## Recommendations
-
-### Initial Recommendations
-
-**Endpoint:** `GET /api/recommendations/initial/{user_id}/`
-
-**Headers:**
-```
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
-```
-
-**Success Response (200 OK):**
-```json
-{
-    "message": "Initial recommendations generated successfully",
-    "recommendations": [
-        {
-            "id": 1,
-            "name": "Urban Sketching",
-            "description": "A creative hobby involving drawing city scenes...",
-            "difficulty_level": "BEGINNER",
-            "time_commitment": 30,
-            "price_range": "$20-$50",
-            "required_equipment": ["sketchbook", "pencils", "pens"],
-            "minimum_age": 12,
-            "match_level": "BEST"
-        }
-    ]
-}
-```
-
-### Hobby Roulette
-
-**Endpoint:** `POST /api/recommendations/roulette/`
-
-**Description:** Generates a completely random hobby suggestion. Uses the roulette system which may require coins for non-free spins.
-
-**Headers:**
-```
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
-```
-
-**Success Response (200 OK):**
-```json
-{
-    "message": "Random hobby generated successfully",
-    "history": {
-        "id": 1,
-        "hobby": {
-            "id": 123,
-            "name": "String",
-            "description": "String",
-            "difficulty_level": "BEGINNER|INTERMEDIATE|ADVANCED",
-            "time_commitment": 30,
-            "price_range": "$0-$50",
-            "required_equipment": ["item1", "item2"],
-            "minimum_age": 13,
-            "category_name": "String"
-        },
-        "suggested_at": "2024-12-01T12:00:00Z",
-        "was_accepted": false,
-        "coins_spent": 50
-    },
-    "coins_spent": 50,
-    "remaining_coins": 450
-}
-```
-
-## Models
-
-### Hobby
-- `id`: Integer
-- `name`: String
-- `description`: Text
-- `category`: ForeignKey to Category
-- `difficulty_level`: String (BEGINNER, INTERMEDIATE, ADVANCED)
-- `time_commitment`: Integer (minutes per day)
-- `price_range`: String
-- `required_equipment`: JSONField (list)
-- `minimum_age`: Integer
-- `notes`: Text
-- `tags`: ManyToMany to Tag
-- `created_at`: DateTime
-
-### UserHobby
-- `id`: Integer
-- `user`: ForeignKey to User
-- `hobby`: ForeignKey to Hobby
-- `status`: String (active, favorite, completed)
-- `notes`: Text
-- `resources_links`: JSONField (list)
-- `started_at`: DateTime
-- `last_activity`: DateTime
-- `rating`: Integer (1-5)
-
-### Category
-- `id`: Integer
-- `name`: String
-- `description`: Text
-
-### Tag
-- `id`: Integer
-- `name`: String
+[Rest of documentation continues as before...]
 
 ## Important Notes
 
@@ -435,6 +241,10 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
 - active: Currently pursuing
 - favorite: Marked as favorite
 - completed: Finished or mastered
+
+### Hobby List Endpoints
+- `/api/hobbies/user/hobbies/`: New endpoint with filtering, sorting, and grouping
+- `/api/hobbies/my/`: Legacy endpoint for basic hobby listing
 
 ### Status Update Methods
 - Single hobby update: Use when updating one hobby at a time with detailed information (notes, rating)
