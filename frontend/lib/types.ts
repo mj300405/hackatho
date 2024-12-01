@@ -11,3 +11,8 @@ export type User = {
   coins: number;
   exp: number;
 };
+
+export type Hobby = {
+  name: string;
+  description: string;
+};
