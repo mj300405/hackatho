@@ -189,7 +189,7 @@ class ExplorationRecommendationService:
             print(f"Generating exploration recommendations for user {user.id}")
             
             response = self.client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-4o-2024-08-06",
                 messages=[
                     {
                         "role": "system",

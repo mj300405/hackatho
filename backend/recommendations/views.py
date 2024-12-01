@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from core.decorators import profile_completed_required
-from .services import HobbyRecommendationService
+from .services import HobbyRecommendationService, ExplorationRecommendationService
 from hobbies.models import Hobby, Category, UserHobby
 from .serializers import HobbyRecommendationSerializer
 from core.models import User
@@ -168,8 +168,8 @@ class ExploreRecommendationsView(APIView):
             ).select_related('hobby')
             
             # Enhance the recommendation service with user's hobby history
-            service = HobbyRecommendationService()
-            recommendations = service.get_exploration_recommendations(
+            service = ExplorationRecommendationService()
+            recommendations = service.get_recommendations(
                 user=request.user,
                 active_hobbies=active_hobbies,
                 favorite_hobbies=favorite_hobbies
