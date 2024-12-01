@@ -73,7 +73,7 @@ export default function Tinder() {
 
   useEffect(() => {
     console.log(cardsSwiped);
-    if (cardsSwiped === cards.length) {
+    if (cardsSwiped === cards.length && cards.length > 0) {
       console.log("All cards swiped.");
       const data = selectedCards.map((card) => {
         return {
