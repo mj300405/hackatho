@@ -248,3 +248,91 @@ class ExplorationRecommendationService:
         except Exception as e:
             print(f"Unexpected error: {str(e)}")
             raise Exception(f"Failed to generate recommendations: {str(e)}")
+
+class RouletteService:
+    def __init__(self):
+        self.client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
+
+    def _create_system_prompt(self) -> str:
+        return """You are a hobby exploration assistant. Your role is to suggest a completely random hobby, 
+        regardless of user preferences. The hobby should be interesting and unique."""
+
+    def _create_user_prompt(self, user) -> str:
+        return f"""Generate 1 completely random hobby. The hobby should be:
+        - Safe and ethical
+        - Possible to do in {user.location}
+        - Legal for someone aged {user.age}
+        
+        FORMAT REQUIREMENTS:
+        Return exactly 1 hobby in this JSON structure:
+        {{
+            "recommendations": [
+                {{
+                    "name": "string",
+                    "description": "string",
+                    "difficulty_level": "BEGINNER|INTERMEDIATE|ADVANCED",
+                    "time_commitment": integer (minutes per day),
+                    "price_range": "string ($X-$Y format)",
+                    "required_equipment": ["item1", "item2"],
+                    "minimum_age": integer,
+                    "category_name": "string",
+                    "match_level": "CHALLENGING"
+                }}
+            ]
+        }}"""
+
+    def get_random_hobby(self, user) -> Dict:
+        try:
+            print(f"Generating random hobby for user {user.id}")
+            
+            response = self.client.chat.completions.create(
+                model="gpt-4o-2024-08-06",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": self._create_system_prompt()
+                    },
+                    {
+                        "role": "user",
+                        "content": self._create_user_prompt(user)
+                    }
+                ],
+                response_format={"type": "json_object"},
+                temperature=1.0  # High temperature for more randomness
+            )
+
+            content = response.choices[0].message.content
+            result = json.loads(content)
+
+            if not isinstance(result, dict) or 'recommendations' not in result or not result['recommendations']:
+                raise ValueError("Invalid response format from OpenAI API")
+
+            recommendation = result['recommendations'][0]
+
+            # Validate the recommendation
+            required_fields = ['name', 'description', 'difficulty_level', 'time_commitment', 
+                             'price_range', 'required_equipment', 'minimum_age', 
+                             'category_name', 'match_level']
+            
+            missing_fields = [field for field in required_fields if field not in recommendation]
+            if missing_fields:
+                raise ValueError(f"Missing required fields in recommendation: {missing_fields}")
+
+            if recommendation['difficulty_level'] not in ['BEGINNER', 'INTERMEDIATE', 'ADVANCED']:
+                raise ValueError(f"Invalid difficulty_level for hobby {recommendation['name']}")
+
+            print(f"Successfully generated random hobby: {recommendation['name']}")
+            return recommendation
+
+        except json.JSONDecodeError as e:
+            print(f"JSON parsing error: {str(e)}")
+            raise Exception("Failed to parse API response")
+        except openai.APIError as e:
+            print(f"OpenAI API error: {str(e)}")
+            raise Exception(f"OpenAI API error: {str(e)}")
+        except ValueError as e:
+            print(f"Validation error: {str(e)}")
+            raise Exception(f"Invalid recommendation format: {str(e)}")
+        except Exception as e:
+            print(f"Unexpected error: {str(e)}")
+            raise Exception(f"Failed to generate random hobby: {str(e)}")
