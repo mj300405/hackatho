@@ -20,13 +20,27 @@ class UserHobbyListView(generics.ListAPIView):
 class UserHobbyDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     Get, update or delete specific user hobby.
+    Provides full hobby details including category, tags, and user-specific data.
     """
     permission_classes = [IsAuthenticated]
     serializer_class = UserHobbySerializer
     lookup_field = 'hobby_id'
 
     def get_queryset(self):
-        return UserHobby.objects.filter(user=self.request.user)
+        return UserHobby.objects.filter(user=self.request.user)\
+            .select_related('hobby', 'hobby__category')\
+            .prefetch_related('hobby__tags')
+
+    def retrieve(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            serializer = self.get_serializer(instance)
+            return Response(serializer.data)
+        except UserHobby.DoesNotExist:
+            return Response(
+                {"error": "Hobby not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
     def destroy(self, request, *args, **kwargs):
         try:
