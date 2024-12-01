@@ -5,6 +5,7 @@ import { useContext, useEffect, useState } from "react";
 import { View, Text } from "react-native";
 import TinderCard from "react-tinder-card";
 import { HobbyType, Direction } from "@/lib/types";
+import { router } from "expo-router";
 
 export default function Tinder() {
   const authContext = useContext(axiosContext) as AxiosContextType;
@@ -137,6 +138,7 @@ export default function Tinder() {
         .patch("/api/hobbies/hobbies/status/", data)
         .then((response: AxiosResponse) => {
           console.log(response.data);
+          router.navigate("/(tabs)");
         })
         .catch((e) => {
           if (e instanceof AxiosError) {
