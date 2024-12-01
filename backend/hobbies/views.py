@@ -2,8 +2,8 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from .models import UserHobby
-from .serializers import UserHobbySerializer
+from .models import UserHobby, Hobby
+from .serializers import UserHobbySerializer, HobbyDetailSerializer
 from django.db import transaction
 
 class UserHobbyListView(generics.ListAPIView):
@@ -144,3 +144,13 @@ class BulkUpdateHobbyStatusView(generics.UpdateAPIView):
             return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(response_data, status=status.HTTP_200_OK)
+
+class HobbyDetailView(generics.RetrieveAPIView):
+    queryset = Hobby.objects.all()
+    serializer_class = HobbyDetailSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
